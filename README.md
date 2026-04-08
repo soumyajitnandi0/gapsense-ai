@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GapSense AI - Career Readiness Platform
+
+This project is a monorepo containing both the frontend and backend applications for GapSense AI.
+
+## Project Structure
+
+-   `frontend/`: The Next.js application (User Interface)
+-   `backend/`: The FastAPI application (API & Logic)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Frontend (Next.js)
+
+To run the frontend development server:
 
 ```bash
+cd frontend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Backend (FastAPI)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To run the backend server:
 
-## Learn More
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-To learn more about Next.js, take a look at the following resources:
+The API will be available at [http://localhost:8000](http://localhost:8000).
+Docs are available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   **Frontend**: Built with Next.js 16, Tailwind CSS, and Shadcn UI.
+-   **Backend**: Built with Python FastAPI.
+-   **Theming**: Custom Orbitaix theme (Deep Space / Glassmorphism).
