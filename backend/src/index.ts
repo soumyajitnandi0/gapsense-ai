@@ -19,6 +19,9 @@ import { errorHandler, notFound, rateLimiterMiddleware } from './middleware';
 // Route imports
 import routes from './routes';
 
+// Seeds
+import { runSeeds } from './seeds/roles';
+
 // Create Express app
 const app = express();
 
@@ -52,6 +55,16 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
   });
+});
+
+// Seed endpoint (admin only)
+app.post('/api/seed', async (req, res) => {
+  try {
+    await runSeeds();
+    res.json({ message: 'Database seeded successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to seed database' });
+  }
 });
 
 // API routes

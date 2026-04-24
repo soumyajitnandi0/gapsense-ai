@@ -7,6 +7,11 @@ export interface IUser extends Document {
   picture?: string;
   authProvider: 'google' | 'email';
   googleId?: string;
+  githubId?: string;
+  githubUsername?: string;
+  githubAccessToken?: string;
+  githubConnectedAt?: Date;
+  onboardingComplete?: boolean;
   lastLogin: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -46,6 +51,23 @@ const UserSchema: Schema = new Schema(
       type: String,
       default: null,
     },
+    githubId: {
+      type: String,
+      default: null,
+    },
+    githubUsername: {
+      type: String,
+      default: null,
+    },
+    githubAccessToken: {
+      type: String,
+      default: null,
+      select: false, // Don't include in queries by default for security
+    },
+    githubConnectedAt: {
+      type: Date,
+      default: null,
+    },
     lastLogin: {
       type: Date,
       default: Date.now,
@@ -53,6 +75,10 @@ const UserSchema: Schema = new Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    onboardingComplete: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -62,5 +88,6 @@ const UserSchema: Schema = new Schema(
 
 UserSchema.index({ email: 1 });
 UserSchema.index({ googleId: 1 });
+UserSchema.index({ githubId: 1 });
 
 export default mongoose.model<IUser>('User', UserSchema);

@@ -2,6 +2,7 @@ import { IGap, ISubScore } from '../models/Assessment';
 import { ISkillRequirement } from '../models/Role';
 import { ISkill, IProject, IExperience } from '../models/Profile';
 import SkillOntology from '../models/SkillOntology';
+import { normalizeSkill } from './resumeParser';
 
 export interface ScoringInput {
   userSkills: ISkill[];
@@ -154,19 +155,25 @@ function calculateCoreSkillsScore(
   userSkills: ISkill[],
   requiredSkills: ISkillRequirement[]
 ): SkillScoreResult {
-  const userSkillNames = userSkills.map(s => s.name.toLowerCase().trim());
+  // Normalize user skill names for better matching
+  const userSkillNames = userSkills.map(s => normalizeSkill(s.name).toLowerCase());
   const required = requiredSkills.filter(s => s.required);
   
   const matched: string[] = [];
   const missing: string[] = [];
 
   for (const req of required) {
-    const reqName = req.name.toLowerCase().trim();
+    const normalizedReq = normalizeSkill(req.name).toLowerCase();
     const hasMatch = userSkillNames.some(userSkill => {
-      // Exact match or partial match
-      return userSkill === reqName || 
-             userSkill.includes(reqName) || 
-             reqName.includes(userSkill);
+      // Check for exact match, contains match, or significant word overlap
+      const exactMatch = userSkill === normalizedReq;
+      const containsMatch = userSkill.includes(normalizedReq) || normalizedReq.includes(userSkill);
+      // Word overlap for multi-word skills (e.g., "REST API" matches "REST APIs")
+      const reqWords = normalizedReq.split(/\s+/);
+      const userWords = userSkill.split(/\s+/);
+      const wordOverlap = reqWords.some(rw => userWords.some(uw => rw === uw || rw.includes(uw) || uw.includes(rw)));
+      
+      return exactMatch || containsMatch || wordOverlap;
     });
     
     if (hasMatch) {
@@ -176,23 +183,30 @@ function calculateCoreSkillsScore(
     }
   }
 
-  // Calculate score based on weighted requirements
+  // Calculate score based on weighted requirements (consider all skills, not just required)
   let totalWeight = 0;
   let achievedWeight = 0;
 
   for (const req of requiredSkills) {
     totalWeight += req.weight;
-    const reqName = req.name.toLowerCase().trim();
-    const hasMatch = userSkillNames.some(userSkill => 
-      userSkill === reqName || userSkill.includes(reqName) || reqName.includes(userSkill)
-    );
+    const normalizedReq = normalizeSkill(req.name).toLowerCase();
+    const hasMatch = userSkillNames.some(userSkill => {
+      const exactMatch = userSkill === normalizedReq;
+      const containsMatch = userSkill.includes(normalizedReq) || normalizedReq.includes(userSkill);
+      const reqWords = normalizedReq.split(/\s+/);
+      const userWords = userSkill.split(/\s+/);
+      const wordOverlap = reqWords.some(rw => userWords.some(uw => rw === uw || rw.includes(uw) || uw.includes(rw)));
+      return exactMatch || containsMatch || wordOverlap;
+    });
     if (hasMatch) {
       achievedWeight += req.weight;
     }
   }
 
   const matchPercentage = totalWeight > 0 ? achievedWeight / totalWeight : 0;
-  const score = Math.round(matchPercentage * 100);
+  // Boost score slightly if they have at least half the required skills
+  const boost = (matched.length / Math.max(1, required.length)) >= 0.5 ? 5 : 0;
+  const score = Math.min(100, Math.round(matchPercentage * 100) + boost);
 
   return { score, matched, missing, matchPercentage };
 }
@@ -216,13 +230,26 @@ function calculateSkillDepthScore(
     advanced: 100,
   };
 
-  // Only consider skills that match required skills
-  const relevantSkills = userSkills.filter(userSkill => 
-    requiredSkills.some(req => 
-      req.name.toLowerCase().includes(userSkill.name.toLowerCase()) ||
-      userSkill.name.toLowerCase().includes(req.name.toLowerCase())
-    )
-  );
+  // Only consider skills that match required skills (using normalized matching)
+  const relevantSkills = userSkills.filter(userSkill => {
+    const normalizedUserSkill = normalizeSkill(userSkill.name).toLowerCase();
+    return requiredSkills.some(req => {
+      const normalizedReq = normalizeSkill(req.name).toLowerCase();
+      return normalizedReq.includes(normalizedUserSkill) || 
+             normalizedUserSkill.includes(normalizedReq) ||
+             normalizedReq === normalizedUserSkill;
+    });
+  });
+
+  // If no exact matches, still give partial credit for having relevant tech skills
+  if (relevantSkills.length === 0 && userSkills.length > 0) {
+    // Give partial score based on overall skill portfolio
+    const totalScore = userSkills.reduce((sum, skill) => {
+      return sum + (levelScores[skill.level] || 50);
+    }, 0);
+    const averageScore = (totalScore / userSkills.length) * 0.3; // 30% credit for general skills
+    return { score: Math.round(averageScore), averageLevel: 'beginner' };
+  }
 
   if (relevantSkills.length === 0) {
     return { score: 0, averageLevel: 'none' };
@@ -410,12 +437,15 @@ async function identifyGaps(
     });
   }
 
-  // Add skills with insufficient depth
+  // Add skills with insufficient depth (using normalized matching)
   for (const userSkill of userSkills) {
-    const req = requiredSkills.find(r => 
-      r.name.toLowerCase().includes(userSkill.name.toLowerCase()) ||
-      userSkill.name.toLowerCase().includes(r.name.toLowerCase())
-    );
+    const normalizedUserSkill = normalizeSkill(userSkill.name).toLowerCase();
+    const req = requiredSkills.find(r => {
+      const normalizedReq = normalizeSkill(r.name).toLowerCase();
+      return normalizedReq.includes(normalizedUserSkill) ||
+             normalizedUserSkill.includes(normalizedReq) ||
+             normalizedReq === normalizedUserSkill;
+    });
 
     if (req) {
       const levelOrder = ['beginner', 'intermediate', 'advanced'];

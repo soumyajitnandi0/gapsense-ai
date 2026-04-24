@@ -1,4 +1,3 @@
-import openai from '../config/openai';
 import { IGap, IRoadmapMilestone, IProjectSuggestion } from '../models/Assessment';
 import SkillOntology from '../models/SkillOntology';
 

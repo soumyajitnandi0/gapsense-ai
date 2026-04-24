@@ -1,4 +1,5 @@
-import openai from '../config/openai';
+import { gemini, geminiModel } from '../config/gemini';
+import { groq, groqModel, groqProModel } from '../config/groq';
 import Profile from '../models/Profile';
 import Assessment from '../models/Assessment';
 import Role from '../models/Role';
@@ -48,18 +49,51 @@ export async function generateCoachResponse(
       { role: 'user', content: userMessage },
     ];
 
-    if (!process.env.OPENAI_API_KEY) {
+    const hasGemini = !!process.env.GEMINI_API_KEY && gemini && geminiModel;
+    const hasGroq = !!process.env.GROQ_API_KEY && groq;
+    
+    if (!hasGemini && !hasGroq) {
       return getMockCoachResponse(userMessage);
     }
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages as any,
-      temperature: 0.7,
-      max_tokens: 800,
-    });
-
-    const content = response.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
+    let content: string | undefined = undefined;
+    let apiFailed = false;
+    
+    // Try Gemini first
+    if (hasGemini) {
+      try {
+        const promptText = `${systemPrompt}\n\n${recentMessages.map(m => `${m.role}: ${m.content}`).join('\n')}\n\nuser: ${userMessage}`;
+        const result = await geminiModel!.generateContent(promptText);
+        const response = await result.response;
+        content = response.text();
+      } catch (error) {
+        console.warn('Gemini coach failed, trying Groq:', error);
+        apiFailed = true;
+      }
+    }
+    
+    // Try Groq if Gemini failed or not available
+    if ((!content && hasGroq) || (apiFailed && hasGroq)) {
+      try {
+        const response = await groq!.chat.completions.create({
+          model: groqProModel,
+          messages: messages as any,
+          temperature: 0.7,
+          max_tokens: 800,
+        });
+        content = response.choices[0]?.message?.content || '';
+        apiFailed = false;
+      } catch (error) {
+        console.warn('Groq coach also failed:', error);
+        apiFailed = true;
+      }
+    }
+    
+    // Fallback to mock response if all APIs failed
+    if (!content || content === '' || apiFailed) {
+      console.log('Using mock coach response');
+      return getMockCoachResponse(userMessage);
+    }
     
     // Parse response and determine type
     const responseType = determineResponseType(userMessage, content);
@@ -72,10 +106,8 @@ export async function generateCoachResponse(
     };
   } catch (error) {
     console.error('AI Coach Error:', error);
-    return {
-      message: 'I apologize, but I encountered an error. Please try again.',
-      type: 'general',
-    };
+    // Always return mock response on error
+    return getMockCoachResponse(userMessage);
   }
 }
 
@@ -115,23 +147,42 @@ Return ONLY a valid JSON array with this structure:
   }
 ]`;
 
-    if (!process.env.OPENAI_API_KEY) {
+    const hasGemini = !!process.env.GEMINI_API_KEY && gemini && geminiModel;
+    const hasGroq = !!process.env.GROQ_API_KEY && groq;
+    
+    if (!hasGemini && !hasGroq) {
       return getMockInterviewQuestions(role.name, count);
     }
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: 'You are an experienced technical interviewer.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' },
-    });
-
-    const content = response.choices[0]?.message?.content || '[]';
-    const parsed = JSON.parse(content);
-    return parsed.questions || parsed || [];
+    let parsed: any;
+    
+    try {
+      if (hasGemini) {
+        const result = await geminiModel!.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        // Extract JSON from response
+        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, text];
+        const jsonStr = jsonMatch[1]?.trim() || text.trim();
+        parsed = JSON.parse(jsonStr);
+      } else if (hasGroq) {
+        const response = await groq!.chat.completions.create({
+          model: groqModel,
+          messages: [
+            { role: 'system', content: 'You are an experienced technical interviewer. Return valid JSON.' },
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.7,
+          response_format: { type: 'json_object' },
+        });
+        const content = response.choices[0]?.message?.content || '[]';
+        parsed = JSON.parse(content);
+      }
+      return parsed.questions || parsed || [];
+    } catch (error) {
+      console.error('Interview questions generation failed:', error);
+      return getMockInterviewQuestions(role.name, count);
+    }
   } catch (error) {
     console.error('Mock Interview Generation Error:', error);
     return getMockInterviewQuestions('Software Engineer', count);
@@ -163,7 +214,10 @@ Provide evaluation in JSON format:
   "improvements": ["Area to improve 1", "Area to improve 2"]
 }`;
 
-    if (!process.env.OPENAI_API_KEY) {
+    const hasGemini = !!process.env.GEMINI_API_KEY && gemini && geminiModel;
+    const hasGroq = !!process.env.GROQ_API_KEY && groq;
+    
+    if (!hasGemini && !hasGroq) {
       return {
         score: 75,
         feedback: 'Good answer with room for improvement.',
@@ -172,18 +226,39 @@ Provide evaluation in JSON format:
       };
     }
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: 'You are an experienced interviewer providing constructive feedback.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.5,
-      response_format: { type: 'json_object' },
-    });
-
-    const content = response.choices[0]?.message?.content || '{}';
-    return JSON.parse(content);
+    try {
+      let parsed: any;
+      
+      if (hasGemini) {
+        const result = await geminiModel!.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, text];
+        const jsonStr = jsonMatch[1]?.trim() || text.trim();
+        parsed = JSON.parse(jsonStr);
+      } else if (hasGroq) {
+        const response = await groq!.chat.completions.create({
+          model: groqModel,
+          messages: [
+            { role: 'system', content: 'You are an experienced interviewer providing constructive feedback. Return valid JSON.' },
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.5,
+          response_format: { type: 'json_object' },
+        });
+        const content = response.choices[0]?.message?.content || '{}';
+        parsed = JSON.parse(content);
+      }
+      return parsed;
+    } catch (error) {
+      console.error('Interview evaluation failed:', error);
+      return {
+        score: 70,
+        feedback: 'Unable to provide detailed evaluation.',
+        strengths: [],
+        improvements: ['Try providing more detailed answers'],
+      };
+    }
   } catch (error) {
     console.error('Interview Evaluation Error:', error);
     return {
@@ -224,22 +299,41 @@ Provide analysis in JSON format:
   "keywords": ["missing keyword 1", "missing keyword 2"]
 }`;
 
-    if (!process.env.OPENAI_API_KEY) {
+    const hasGemini = !!process.env.GEMINI_API_KEY && gemini && geminiModel;
+    const hasGroq = !!process.env.GROQ_API_KEY && groq;
+    
+    if (!hasGemini && !hasGroq) {
       return getMockResumeFeedback();
     }
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: 'You are a professional resume reviewer.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.5,
-      response_format: { type: 'json_object' },
-    });
-
-    const content = response.choices[0]?.message?.content || '{}';
-    return JSON.parse(content);
+    try {
+      let parsed: any;
+      
+      if (hasGemini) {
+        const result = await geminiModel!.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, text];
+        const jsonStr = jsonMatch[1]?.trim() || text.trim();
+        parsed = JSON.parse(jsonStr);
+      } else if (hasGroq) {
+        const response = await groq!.chat.completions.create({
+          model: groqModel,
+          messages: [
+            { role: 'system', content: 'You are a professional resume reviewer. Return valid JSON.' },
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.5,
+          response_format: { type: 'json_object' },
+        });
+        const content = response.choices[0]?.message?.content || '{}';
+        parsed = JSON.parse(content);
+      }
+      return parsed;
+    } catch (error) {
+      console.error('Resume feedback generation failed:', error);
+      return getMockResumeFeedback();
+    }
   } catch (error) {
     console.error('Resume Feedback Error:', error);
     return getMockResumeFeedback();

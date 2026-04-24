@@ -1,4 +1,5 @@
-import openai from '../config/openai';
+import { gemini, geminiModel } from '../config/gemini';
+import { groq, groqModel } from '../config/groq';
 import { ISkillRequirement } from '../models/Role';
 
 export interface ParsedJD {
@@ -13,7 +14,10 @@ export interface ParsedJD {
 }
 
 export async function parseJobDescription(jdText: string): Promise<ParsedJD> {
-  if (!process.env.OPENAI_API_KEY) {
+  const hasGemini = !!process.env.GEMINI_API_KEY && gemini && geminiModel;
+  const hasGroq = !!process.env.GROQ_API_KEY && groq;
+  
+  if (!hasGemini && !hasGroq) {
     return getMockParsedJD();
   }
 
@@ -46,21 +50,34 @@ Job Description:
 ${jdText.substring(0, 10000)}`; // Limit to avoid token limits
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a precise job description parser. Return only valid JSON.',
-        },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.1,
-      response_format: { type: 'json_object' },
-    });
-
-    const content = response.choices[0]?.message?.content || '{}';
-    const parsed = JSON.parse(content);
+    let parsed: any;
+    
+    if (hasGemini) {
+      const result = await geminiModel!.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      // Extract JSON from response
+      const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, text];
+      const jsonStr = jsonMatch[1]?.trim() || text.trim();
+      parsed = JSON.parse(jsonStr);
+    } else if (hasGroq) {
+      const response = await groq!.chat.completions.create({
+        model: groqModel,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a precise job description parser. Return only valid JSON.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      });
+      const content = response.choices[0]?.message?.content || '{}';
+      parsed = JSON.parse(content);
+    } else {
+      return getMockParsedJD();
+    }
 
     return {
       title: parsed.title || 'Unknown Position',

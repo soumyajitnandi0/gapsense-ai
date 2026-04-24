@@ -107,6 +107,39 @@ npm run dev
 - `POST /api/chat/mock-interview/evaluate` - Evaluate interview answer
 - `POST /api/chat/resume-feedback` - Get resume feedback
 
+### Admin (Admin Only)
+- `GET /api/admin/stats` - Get dashboard stats
+- `GET /api/admin/users` - List all users (paginated)
+- `GET /api/admin/users/:id` - Get user details
+- `PATCH /api/admin/users/:id/status` - Activate/deactivate user
+- `DELETE /api/admin/users/:id` - Delete user and all data
+- `GET /api/admin/analytics/cohort` - Get cohort analytics
+- `GET /api/admin/analytics/roles/:roleId` - Get role analytics
+
+### Skills
+- `GET /api/skills` - List all skills
+- `GET /api/skills/categories` - Get skill categories
+- `GET /api/skills/:id` - Get skill details
+- `GET /api/skills/name/:name` - Get skill by name
+- `GET /api/skills/search/autocomplete` - Search skills
+- `GET /api/skills/:id/learning-path` - Get skill learning path
+- `POST /api/skills` - Create new skill (admin)
+- `PUT /api/skills/:id` - Update skill (admin)
+- `POST /api/skills/:id/resources` - Add resource to skill (admin)
+- `POST /api/skills/:id/related` - Add related skill (admin)
+- `DELETE /api/skills/:id` - Deactivate skill (admin)
+
+### Analytics
+- `GET /api/analytics/platform` - Platform-wide analytics (admin)
+- `GET /api/analytics/engagement` - User engagement analytics (admin)
+- `GET /api/analytics/skill-gaps` - Skill gap analytics
+- `GET /api/analytics/retention` - User retention cohorts (admin)
+- `GET /api/analytics/user` - Personal analytics for current user
+
+### Export (GDPR Compliance)
+- `GET /api/export/data` - Export all user data
+- `GET /api/export/assessment/:id` - Export specific assessment
+
 ## Project Structure
 
 ```
@@ -165,8 +198,35 @@ Context-aware chat assistant that can:
 - `npm run dev` - Start development server with hot reload
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm start` - Start production server
+- `npm run seed` - Seed database with roles and skills
 - `npm run lint` - Run ESLint
 - `npm test` - Run tests
+
+## Additional Features
+
+### Admin Portal APIs
+Full-featured admin endpoints for:
+- User management (list, view, activate/deactivate, delete)
+- Dashboard statistics and metrics
+- Cohort analytics and role-based analytics
+- User retention tracking
+
+### Skill Ontology System
+- Hierarchical skill graph with prerequisites and relationships
+- Skill resources with difficulty levels
+- Learning path generation
+- Search and autocomplete
+
+### Analytics & Reporting
+- Platform-wide engagement metrics
+- Score distributions and progress tracking
+- Skill gap analysis across user cohorts
+- Personal analytics dashboard data
+
+### GDPR Compliance
+- Data export functionality
+- User data deletion
+- Privacy-focused design
 
 ## License
 

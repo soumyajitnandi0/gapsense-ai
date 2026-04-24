@@ -13,8 +13,12 @@ import {
     Clock,
     Lightbulb,
     Target,
-    TrendingUp
+    TrendingUp,
+    ArrowUpRight
 } from "lucide-react"
+
+import { PremiumCard } from "@/components/ui/PremiumCard"
+import { cn } from "@/lib/utils"
 
 export default function AnalysisPage() {
     const router = useRouter()
@@ -50,142 +54,189 @@ export default function AnalysisPage() {
     }
 
     if (loading || !assessment) return (
-        <div className="min-h-[80vh] flex items-center justify-center animate-pulse">
-            <div className="h-10 w-10 border-t-2 border-primary rounded-full animate-spin"></div>
+        <div className="flex h-[80vh] items-center justify-center">
+            <div className="h-10 w-10 rounded-full border-4 border-black/10 border-t-primary animate-spin" />
         </div>
     )
 
-    const score = assessment.overallScore
+    const score = assessment.overallScore || 0
     const gaps = assessment.gaps || []
     const subscores = assessment.subScores || []
     const roadmap = assessment.roadmap
 
     const getScoreColor = (score: number) => {
-        if (score >= 80) return "text-green-400 bg-green-400"
-        if (score >= 50) return "text-yellow-400 bg-yellow-400"
-        return "text-red-400 bg-red-400"
+        if (score >= 80) return "bg-primary"
+        if (score >= 50) return "bg-primary"
+        return "bg-foreground"
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20 pt-16 text-[#1B1C1D]">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-heading font-semibold text-white tracking-tight flex items-center gap-2">
-                        <Target className="h-8 w-8 text-lime-400" /> Goal Alignment
-                    </h1>
-                    <p className="text-muted-foreground mt-1 text-lg">
-                        Target Role: <span className="text-white font-medium">{assessment.roleId?.name || "Target Role"}</span>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8 px-2">
+                <div className="flex-grow">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="h-14 w-14 rounded-full bg-white/60 border border-black/5 shadow-sm flex items-center justify-center">
+                            <Target className="h-6 w-6 text-primary" />
+                        </div>
+                        <h1 className="text-5xl lg:text-[64px] font-heading font-medium tracking-tight text-[#1B1C1D] leading-none">
+                            Goal Alignment
+                        </h1>
+                    </div>
+                    <p className="text-foreground/40 text-sm font-bold uppercase tracking-[0.2em] ml-1">
+                        Target Role: <span className="text-foreground/80">{assessment.roleId?.name || "Target Role"}</span>
                     </p>
                 </div>
-                <Button variant="glow" onClick={handleRecompute} disabled={isRecomputing} className="bg-lime-400 text-black hover:bg-lime-500 rounded-full font-medium shadow-[0_0_20px_-5px_rgba(163,230,53,0.4)]">
-                    {isRecomputing ? "Recomputing..." : "Recompute Score"}
+                <Button 
+                    onClick={handleRecompute} 
+                    disabled={isRecomputing} 
+                    className="h-14 px-8 rounded-full bg-primary text-foreground hover:bg-primary/90 font-bold shadow-lg transition-transform hover:-translate-y-1"
+                >
+                    {isRecomputing ? (
+                       <span className="flex items-center gap-2">
+                           <div className="h-4 w-4 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+                           Recomputing...
+                       </span>
+                    ) : "Recompute Score"}
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Readiness Scores - Left Column */}
-                <Card className="p-6 bg-white/[0.02] border-white/10 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-lime-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-6 w-full text-center relative z-10">Overall Readiness</h2>
-                    <div className="w-64 h-64 relative z-10">
-                        <ReadinessScore score={score} className="scale-125" />
+            {/* Top Grid: Readiness vs Subscores */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch mb-10">
+                {/* Left Column: Overall Readiness */}
+                <PremiumCard className="lg:col-span-4 h-auto min-h-[500px] flex flex-col justify-between items-center text-center py-16 shadow-premium border-white">
+                    <h2 className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.25em] mb-4">Overall Readiness</h2>
+                    
+                    <div className="relative w-72 h-72 flex items-center justify-center my-8">
+                        <svg className="w-full h-full -rotate-90 scale-110" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(0,0,0,0.03)" strokeWidth="12" strokeDasharray="5 5" />
+                            <circle cx="50" cy="50" r="44" fill="none" stroke="#1B1C1D" strokeWidth="12" strokeLinecap="round" strokeDasharray="276" strokeDashoffset={276 - (276 * score) / 100} className="transition-all duration-[2s] ease-out shadow-2xl" />
+                        </svg>
+                        <div className="absolute flex flex-col items-center">
+                            <span className="text-[90px] font-light tracking-tighter leading-none">{score}</span>
+                            <span className="text-[13px] font-bold text-foreground/40 uppercase tracking-[0.2em] mt-2">/ 100</span>
+                        </div>
                     </div>
-                    <p className="mt-8 text-center text-sm text-muted-foreground max-w-[250px] relative z-10">
-                        Top {gaps.length} major gaps stand between your current profile and the target role expectations.
+                    
+                    <p className="text-sm font-medium text-foreground/50 max-w-[280px] leading-relaxed mx-auto px-4 mt-4">
+                        Top <span className="font-bold text-foreground">{gaps.length} major gaps</span> stand between your current profile and the target role expectations.
                     </p>
-                </Card>
+                </PremiumCard>
 
-                {/* Subscores - Right Columns (spans 2) */}
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Right Column: 2x2 Grid of Subscores */}
+                <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-10">
                     {subscores.map((sub: ISubScore, idx: number) => {
-                        const colorClass = getScoreColor(sub.score)
-                        const textColor = colorClass.split(' ')[0]
-                        const bgColor = colorClass.split(' ')[1]
-
+                        const bgColor = getScoreColor(sub.score)
                         return (
-                            <Card key={idx} className="p-5 bg-white/[0.02] border-white/10 backdrop-blur-md rounded-2xl hover:bg-white/[0.04] transition-colors flex flex-col justify-between">
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className="text-sm font-medium text-muted-foreground">{sub.category}</span>
-                                    <TrendingUp className={`h-4 w-4 ${textColor}`} />
+                            <PremiumCard variant="white" key={idx} className="p-8 h-[240px] flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.02)] border-black/[0.03] group hover:-translate-y-1 transition-all">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-sm font-bold text-foreground/60">{sub.category}</span>
+                                    <div className="h-8 w-8 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                        <TrendingUp className="h-4 w-4 text-primary" />
+                                    </div>
                                 </div>
-                                <div className="flex items-end gap-2">
-                                    <span className="text-4xl font-heading font-bold text-white tracking-tighter">{sub.score}</span>
-                                    <span className="text-sm text-muted-foreground mb-1.5">/ 100</span>
+                                
+                                <div>
+                                    <div className="flex items-baseline gap-2 mb-2">
+                                        <span className="text-6xl font-light tracking-tighter">{sub.score}</span>
+                                        <span className="text-sm font-bold text-foreground/30">/ 100</span>
+                                    </div>
+                                    <div className="text-[11px] font-bold text-foreground/40 uppercase tracking-widest line-clamp-1 mb-8">{sub.explanation}</div>
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-2 line-clamp-1">{sub.explanation}</div>
-                                <div className="w-full bg-white/5 h-1.5 mt-4 rounded-full overflow-hidden">
+
+                                <div className="w-full bg-foreground/5 h-2 rounded-full overflow-hidden">
                                     <div
-                                        className={`h-full rounded-full ${bgColor}`}
+                                        className={cn("h-full rounded-full transition-all duration-1000", bgColor)}
                                         style={{ width: `${sub.score}%` }}
                                     />
                                 </div>
-                            </Card>
+                            </PremiumCard>
                         )
                     })}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Bottom Grid: Gaps & Roadmap */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
                 {/* Priority Gaps */}
-                <Card className="p-6 bg-white/[0.02] border-white/10 backdrop-blur-md rounded-2xl">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-yellow-400" /> Top Priority Gaps
+                <PremiumCard className="min-h-[500px] flex flex-col shadow-premium border-white p-10">
+                    <div className="flex items-center justify-between mb-10 pb-4 border-b border-black/[0.03]">
+                        <h3 className="text-2xl font-medium tracking-tight flex items-center gap-3">
+                            <AlertTriangle className="h-6 w-6 text-primary" /> Top Priority Gaps
                         </h3>
+                        <span className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.25em]">{gaps.length} Items</span>
                     </div>
-                    <div className="space-y-4">
+                    
+                    <div className="space-y-6 overflow-y-auto custom-scrollbar flex-grow pr-2">
                         {gaps.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No major gaps identified!</p>
+                            <div className="flex flex-col items-center justify-center py-20 text-foreground/20">
+                                <CheckCircle2 className="h-16 w-16 mb-4 opacity-40" />
+                                <p className="text-xs font-black uppercase tracking-[0.4em] opacity-60">No major gaps</p>
+                            </div>
                         ) : gaps.map((gap: IGap, idx: number) => (
-                            <div key={idx} className="group p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors flex items-start gap-4">
-                                <div className="p-2 rounded-lg bg-white/5 text-white mt-0.5">
-                                    <Lightbulb className="h-5 w-5 text-yellow-400" />
+                            <div key={idx} className="group p-6 rounded-[1.5rem] bg-white/60 border border-black/5 hover:bg-white hover:shadow-lg transition-all flex items-start gap-5">
+                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                                    <Lightbulb className="h-5 w-5 text-primary" />
                                 </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <h4 className="text-sm font-medium text-white">{gap.skill}</h4>
-                                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                                            gap.priority === 'high' ? 'bg-red-400/10 text-red-400' : 'bg-yellow-400/10 text-yellow-400'
-                                        }`}>
+                                <div className="flex-1 pt-1">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h4 className="text-base font-bold text-foreground leading-tight">{gap.skill}</h4>
+                                        <span className={cn(
+                                            "text-[10px] font-black uppercase px-3 py-1.5 rounded-full tracking-widest border shadow-sm",
+                                            gap.priority === 'high' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-primary/20 text-foreground border-primary/30'
+                                        )}>
                                             {gap.priority} Priority
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                                        <span>{gap.rationale}</span>
-                                    </div>
+                                    <p className="text-sm text-foreground/60 leading-relaxed font-medium">
+                                        {gap.rationale}
+                                    </p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </Card>
+                </PremiumCard>
 
-                {/* 60-Day Roadmap Summary */}
-                <Card className="p-6 bg-white/[0.02] border-white/10 backdrop-blur-md rounded-2xl relative overflow-hidden">
-                    <div className="flex items-center justify-between mb-6 relative z-10">
-                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                            <Clock className="h-5 w-5 text-cyan-400" /> {roadmap?.duration || 60}-Day Action Plan
-                        </h3>
-                        <Button variant="link" className="text-cyan-400" onClick={() => router.push("/dashboard/roadmap")}>View Full</Button>
+                {/* 60-Day Action Plan */}
+                <PremiumCard className="min-h-[500px] flex flex-col bg-[#1A1A1A] text-white shadow-[0_40px_80px_rgb(0,0,0,0.15)] p-0 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 opacity-80" />
+                    <div className="p-10 pb-6 border-b border-white/5 relative z-10">
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-2xl font-light tracking-tight flex items-center gap-3">
+                                <Clock className="h-6 w-6 text-primary" /> {roadmap?.duration || 60}-Day Action Plan
+                            </h3>
+                            <Button variant="ghost" className="text-xs font-bold text-white/50 hover:text-white uppercase tracking-widest rounded-full" onClick={() => router.push("/dashboard/roadmap")}>
+                                View Full <ArrowUpRight className="ml-1 h-3 w-3" />
+                            </Button>
+                        </div>
+                        <p className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] ml-9">Strategic Blueprint</p>
                     </div>
 
-                    <div className="relative pl-6 space-y-8 mt-8 border-l border-white/10 pb-4 z-10 max-h-[400px] overflow-y-auto pr-2">
+                    <div className="relative p-10 flex-grow space-y-10 z-10 overflow-y-auto custom-scrollbar">
+                        {/* Vertical Timeline Guide Line */}
+                        <div className="absolute left-[3.3rem] top-10 bottom-10 w-px bg-white/10" />
+
                         {roadmap?.milestones?.slice(0, 3).map((item: any, idx: number) => (
-                            <div key={idx} className="relative">
-                                <div className="absolute -left-[30px] p-1 rounded-full bg-black border-2 border-white/20">
-                                    <div className="h-2 w-2 rounded-full bg-transparent" />
+                            <div key={idx} className="relative flex gap-8 group/milestone cursor-pointer">
+                                {/* Timeline Node */}
+                                <div className="relative mt-2">
+                                    <div className="h-6 w-6 rounded-full bg-[#1A1A1A] border-4 border-white/20 flex items-center justify-center z-10 relative group-hover/milestone:border-primary transition-colors">
+                                        <div className="h-1.5 w-1.5 rounded-full bg-white/50 group-hover/milestone:bg-primary transition-colors" />
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Week {item.week}</span>
-                                    <h4 className="text-base font-medium mt-1 text-white/90">
+                                {/* Content block */}
+                                <div className="flex-1 bg-white/5 rounded-[1.5rem] p-6 border border-white/5 group-hover/milestone:bg-white/10 group-hover/milestone:border-white/10 transition-all">
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.25em]">Week {item.week}</span>
+                                    <h4 className="text-lg font-medium mt-2 text-white/90 mb-6">
                                         {item.title}
                                     </h4>
-                                    <div className="mt-4 space-y-2">
+                                    
+                                    <div className="space-y-3">
                                         {item.tasks.slice(0, 2).map((task: any, tIdx: number) => (
-                                          <div key={tIdx} className="flex items-start gap-2 text-sm text-muted-foreground bg-white/5 p-2 rounded-lg">
-                                              <CheckCircle2 className="h-4 w-4 text-white/40 mt-0.5 shrink-0" />
-                                              <span className="leading-relaxed">{task.title}</span>
+                                          <div key={tIdx} className="flex items-start gap-3 text-sm text-white/60 bg-black/20 p-4 rounded-xl border border-white/5">
+                                              <CheckCircle2 className="h-5 w-5 text-white/20 mt-0.5 shrink-0" />
+                                              <span className="leading-snug">{task.title}</span>
                                           </div>
                                         ))}
                                     </div>
@@ -193,7 +244,7 @@ export default function AnalysisPage() {
                             </div>
                         ))}
                     </div>
-                </Card>
+                </PremiumCard>
             </div>
         </div>
     )

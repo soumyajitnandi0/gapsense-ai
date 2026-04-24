@@ -66,22 +66,34 @@ export default function OnboardingPage() {
     const handleAnalyze = async () => {
         setIsAnalyzing(true)
         try {
+            let activeRoleId = selectedRole;
+
+            // If the user pasted a JD instead of selecting from template roles
             if (jd) {
-                // Future expansion: Create role from JD and assess
-                alert("JD Analysis not wired yet. Please select a template role.")
-                setIsAnalyzing(false)
-                return
+                const roleRes = await api.post('/roles/from-jd', {
+                    jdText: jd
+                });
+                
+                if (roleRes.data && roleRes.data.role) {
+                    activeRoleId = roleRes.data.role._id;
+                } else {
+                    throw new Error("Could not parse JD properly.");
+                }
             }
 
-            const res = await api.post(`/assessments`, {
-                roleId: selectedRole
-            })
+            // Use the new onboarding complete endpoint
+            const onboardingRes = await api.post('/onboarding/complete', {
+                roleId: activeRoleId
+            });
             
-            // Redirect to analysis page to view results
-            router.push("/dashboard/analysis")
-        } catch (error) {
+            // Update store with the results
+            useStore.getState().setAssessment(onboardingRes.data.assessment)
+
+            // Redirect to dashboard
+            router.push("/dashboard")
+        } catch (error: any) {
             console.error("Analysis failed", error)
-            alert("Analysis failed.")
+            alert(error.response?.data?.error || "Analysis failed. Ensure your JD text is valid.")
         } finally {
             setIsAnalyzing(false)
         }

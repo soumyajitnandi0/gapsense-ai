@@ -48,6 +48,11 @@ export interface IProfile extends Document {
     companySize: 'startup' | 'mid' | 'enterprise' | 'any';
     location: string[];
     remote: boolean;
+    notifications?: {
+      emailNotifications: boolean;
+      assessmentReminders: boolean;
+      weeklyDigest: boolean;
+    };
   };
   createdAt: Date;
   updatedAt: Date;
@@ -107,6 +112,11 @@ const ProfileSchema: Schema = new Schema(
       companySize: { type: String, enum: ['startup', 'mid', 'enterprise', 'any'], default: 'any' },
       location: [{ type: String }],
       remote: { type: Boolean, default: true },
+      notifications: {
+        emailNotifications: { type: Boolean, default: true },
+        assessmentReminders: { type: Boolean, default: true },
+        weeklyDigest: { type: Boolean, default: false },
+      },
     },
   },
   {
