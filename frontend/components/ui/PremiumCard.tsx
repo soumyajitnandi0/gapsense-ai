@@ -14,10 +14,10 @@ export function PremiumCard({
   ...props
 }: PremiumCardProps) {
   const variants = {
-    default: "bg-white/70 backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-white/80",
-    dark: "bg-[#1A1A1A] text-white shadow-[0_30px_60px_rgb(0,0,0,0.12)] border border-white/5",
-    glass: "bg-white/40 backdrop-blur-xl border border-white/60 shadow-sm",
-    white: "bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5",
+    default: "bg-background border-2 border-black shadow-hard",
+    dark: "bg-black text-white border-2 border-black shadow-hard",
+    glass: "bg-background border-2 border-black shadow-hard",
+    white: "bg-white border-2 border-black shadow-hard",
   }
 
   const paddings = {
@@ -30,7 +30,7 @@ export function PremiumCard({
   return (
     <div
       className={cn(
-        "rounded-[2.5rem] transition-all duration-300",
+        "rounded-xl transition-transform duration-200",
         variants[variant],
         paddings[padding],
         className

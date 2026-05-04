@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User';
 import Profile from '../models/Profile';
 import Assessment from '../models/Assessment';
+import Progress from '../models/Progress';
+import Chat from '../models/Chat';
 import { authenticate, asyncHandler } from '../middleware';
 
 const router = Router();
@@ -143,21 +145,23 @@ router.put(
   })
 );
 
-// Delete account
+// Delete account — HARD DELETE all user data
 router.delete(
   '/account',
   authenticate,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = (req.user as any)._id;
 
-    // Delete all user data
+    // Hard delete ALL user data across every collection
     await Promise.all([
       User.findByIdAndDelete(userId),
       Profile.findOneAndDelete({ userId }),
       Assessment.deleteMany({ userId }),
+      Progress.deleteMany({ userId }),
+      Chat.deleteMany({ userId }),
     ]);
 
-    res.json({ message: 'Account deleted successfully' });
+    res.json({ message: 'Account and all associated data permanently deleted' });
   })
 );
 

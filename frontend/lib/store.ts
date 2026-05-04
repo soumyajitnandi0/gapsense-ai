@@ -10,6 +10,7 @@ export interface Profile {
   skills: any[]
   projects: any[]
   education: any[]
+  experience: any[]
 }
 
 export interface IGap {
@@ -50,7 +51,7 @@ interface AppState {
 }
 
 export const useStore = create<AppState>()((set) => ({
-  user: { id: 1, name: "Demo User", email: "demo@example.com" }, // mock for MVP
+  user: null,
   profile: null,
   assessment: null,
   setUser: (user) => set({ user }),

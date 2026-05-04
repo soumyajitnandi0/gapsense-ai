@@ -9,65 +9,58 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#FAF9F6', // Soft pearl/cream base
-        foreground: '#1B1C1D', // Deep charcoal for contrast 
+        background: '#FDFDFB', // Neo off-white
+        foreground: '#000000', // Pitch black
         card: {
-          DEFAULT: '#FFFFFF', // Clean white for cards
-          foreground: '#1B1C1D',
-          dark: '#1C1E1D', // For the dark inverted cards (like Onboarding Tasks)
+          DEFAULT: '#FFFFFF',
+          foreground: '#000000',
+          dark: '#000000',
           darkForeground: '#FFFFFF'
         },
         popover: {
           DEFAULT: '#FFFFFF',
-          foreground: '#1B1C1D'
+          foreground: '#000000'
         },
         primary: {
-          DEFAULT: '#F4D03F', // Premium soft yellow
-          foreground: '#1B1C1D'
+          DEFAULT: '#FEF94D', // Neo yellow
+          foreground: '#000000'
         },
         secondary: {
-          DEFAULT: '#EAEAE0', // Soft grey-cream
-          foreground: '#1B1C1D'
+          DEFAULT: '#FF7EB9', // Neo pink
+          foreground: '#000000'
         },
         muted: {
-          DEFAULT: '#F0F0EA',
-          foreground: '#757876' // Muted text 
+          DEFAULT: '#EAEAE0',
+          foreground: '#666666'
         },
         accent: {
-          DEFAULT: '#FFF3CD',
-          foreground: '#1B1C1D'
+          DEFAULT: '#00FF41', // Terminal green
+          foreground: '#000000'
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))'
+          DEFAULT: '#FF0000',
+          foreground: '#FFFFFF'
         },
-        border: 'rgba(0, 0, 0, 0.06)',
-        input: 'rgba(0, 0, 0, 0.05)',
-        ring: '#F4D03F',
-        glass: {
-          DEFAULT: 'rgba(255, 255, 255, 0.6)',
-          hover: 'rgba(255, 255, 255, 0.8)',
-          border: 'rgba(255, 255, 255, 0.8)'
-        }
+        border: '#000000', // Solid black borders
+        input: '#000000',
+        ring: '#FEF94D',
       },
       borderRadius: {
-        lg: '1.5rem', // Larger radiuses for premium feel
+        lg: '1.5rem',
         md: '1rem',
         sm: '0.75rem',
         pill: '9999px'
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
-        heading: ['var(--font-outfit)', 'sans-serif']
-      },
-      backgroundImage: {
-        'soft-glow': 'radial-gradient(circle at 30% 20%, rgba(244, 208, 63, 0.15) 0%, rgba(250, 249, 246, 0) 60%)',
-        'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)',
+        heading: ['var(--font-outfit)', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
       },
       boxShadow: {
-        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
-        'premium-hover': '0 20px 40px -10px rgba(0,0,0,0.08)',
-        'inner-light': 'inset 0 2px 4px 0 rgba(255,255,255,0.8)',
+        'hard': '4px 4px 0px 0px rgba(0,0,0,1)',
+        'hard-lg': '8px 8px 0px 0px rgba(0,0,0,1)',
+        'hard-xl': '12px 12px 0px 0px rgba(0,0,0,1)',
+        'none': '0px 0px 0px 0px rgba(0,0,0,0)'
       },
       keyframes: {
         'accordion-down': {
@@ -77,11 +70,16 @@ module.exports = {
         'accordion-up': {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' }
+        },
+        'marquee': {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' }
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out'
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        'marquee': 'marquee 25s linear infinite'
       }
     },
     container: {

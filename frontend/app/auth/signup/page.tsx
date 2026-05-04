@@ -50,105 +50,166 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="flex min-h-[calc(100vh-80px)] w-full items-center justify-center relative overflow-hidden bg-[#FAF9F6] py-12">
-            <div className="relative z-10 w-full max-w-md px-4">
-                {/* Logo Branding */}
-                <div className="flex flex-col items-center mb-8 space-y-2">
-                    <Link href="/" className="flex items-center justify-center h-14 w-14 rounded-2xl bg-amber-400 text-white shadow-md mb-4 hover:scale-105 transition-transform duration-300">
-                        <Sparkles className="h-7 w-7 fill-current" />
-                    </Link>
-                    <h1 className="text-3xl font-medium tracking-tight text-[#111] font-heading text-center">
-                        Create your account
-                    </h1>
-                    <p className="text-[#2B2D2B]/60 text-center px-4">
-                        Join thousands of engineers accelerating their career with AI.
-                    </p>
-                </div>
-
-                {/* Glassmorphic Panel */}
-                <div className="relative group">
-                    <Card className="relative border border-[#111]/5 rounded-[2rem] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-10">
-                        <form className="space-y-5" onSubmit={handleSubmit}>
-                            {error && (
-                                <div className="rounded-xl bg-red-50/50 border border-red-200 px-4 py-3 text-[14px] font-medium text-red-600">
-                                    {error}
+        <div className="flex min-h-screen w-full relative overflow-hidden bg-background">
+            <div className="grid grid-cols-1 lg:grid-cols-2 w-full">
+                {/* Left Content Section - High Impact */}
+                <div className="hidden lg:flex flex-col justify-center px-12 md:px-24 bg-secondary border-r-8 border-black relative overflow-hidden">
+                    {/* Decorative Elements */}
+                    <div className="absolute top-10 left-10 w-32 h-32 border-8 border-black opacity-20 transform rotate-12"></div>
+                    <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full border-8 border-black opacity-20 transform -rotate-12"></div>
+                    
+                    <div className="relative z-10 space-y-12">
+                        <Link href="/" className="flex items-center justify-center h-20 w-20 bg-white border-4 border-black text-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200">
+                            <Sparkles className="h-10 w-10 fill-current text-black" />
+                        </Link>
+                        
+                        <h2 className="text-7xl font-black uppercase tracking-tighter text-black leading-none">
+                            Bridge The <br/> <span className="bg-white px-2 border-4 border-black shadow-hard">Gap To Success</span>
+                        </h2>
+                        
+                        <div className="space-y-6">
+                            {[
+                                "Industry-Standard Skill Profiling",
+                                "Targeted Interview Preparation",
+                                "Project-Based Learning Paths",
+                                "Real-time Career Readiness Tracker"
+                            ].map((feature, i) => (
+                                <div key={i} className="flex items-center gap-4 bg-white border-4 border-black p-4 shadow-hard transform hover:-translate-y-1 transition-transform">
+                                    <div className="h-8 w-8 bg-primary border-2 border-black flex items-center justify-center">
+                                        <Sparkles className="h-4 w-4 text-black" />
+                                    </div>
+                                    <span className="font-black uppercase tracking-widest text-sm text-black">{feature}</span>
                                 </div>
-                            )}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#111] ml-1">Full Name</label>
-                                <Input
-                                    id="name"
-                                    placeholder="Enter your name"
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
-                                    className="bg-[#FAF9F6] border border-[#111]/5 text-[#111] placeholder:text-[#2B2D2B]/30 focus-visible:ring-amber-400/50 h-12 rounded-xl text-[15px] font-medium"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#111] ml-1">Email Address</label>
-                                <Input
-                                    id="email"
-                                    placeholder="name@example.com"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="bg-[#FAF9F6] border border-[#111]/5 text-[#111] placeholder:text-[#2B2D2B]/30 focus-visible:ring-amber-400/50 h-12 rounded-xl text-[15px] font-medium"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#111] ml-1">Password</label>
-                                <Input
-                                    id="password"
-                                    placeholder="••••••••"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="bg-[#FAF9F6] border border-[#111]/5 text-[#111] placeholder:text-[#2B2D2B]/30 focus-visible:ring-amber-400/50 h-12 rounded-xl text-[15px] font-medium"
-                                />
-                            </div>
-
-                            <div className="pt-4">
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full h-12 rounded-xl text-[15px] font-bold text-white bg-[#111] hover:bg-[#1a1a1a] transition-colors shadow-md disabled:opacity-50"
-                                >
-                                    {loading ? 'Signing up...' : 'Sign Up'}
-                                </button>
-                            </div>
-                        </form>
-
-                        <div className="relative my-8">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-[#111]/10" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase font-bold tracking-wider">
-                                <span className="bg-white px-4 text-[#2B2D2B]/40">
-                                    Or continue with
-                                </span>
-                            </div>
+                            ))}
                         </div>
 
-                        <button
-                            type="button"
-                            className="w-full bg-white border border-[#111]/5 hover:bg-[#FAF9F6] h-12 rounded-xl text-[#111] text-[15px] font-semibold transition-colors shadow-sm flex items-center justify-center gap-3"
-                            onClick={() => window.location.href = `${API_BASE}/auth/google`}
-                        >
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path stopColor="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" /><path stopColor="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" /><path stopColor="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" /><path stopColor="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" /><path fill="none" d="M0 0h48v48H0z" /></svg>
-                            Google
-                        </button>
+                        <p className="text-black font-black uppercase tracking-widest text-sm border-l-8 border-black pl-6 italic">
+                            "The roadmap provided by GapSense gave me the structure I needed to pivot my career efficiently."
+                        </p>
+                    </div>
+                </div>
 
-                        <p className="text-center text-[14px] font-medium text-[#2B2D2B]/60 mt-8">
-                            Already have an account?{' '}
-                            <Link href="/auth/login" className="text-amber-500 hover:text-amber-600 transition-colors">
-                                Sign In
+                {/* Right Section - Signup Form */}
+                <div className="flex items-center justify-center p-8 md:p-12">
+                    <div className="w-full max-w-md space-y-8">
+                        {/* Mobile Logo Branding */}
+                        <div className="flex flex-col items-center lg:hidden mb-8 space-y-4">
+                            <Link href="/" className="flex items-center justify-center h-16 w-16 bg-primary border-4 border-black text-black shadow-hard">
+                                <Sparkles className="h-8 w-8 fill-current text-black" />
+                            </Link>
+                            <h1 className="text-4xl font-black uppercase tracking-tighter text-black text-center">
+                                Join the mission
+                            </h1>
+                        </div>
+
+                        <div className="hidden lg:block space-y-2 mb-8 text-center lg:text-left">
+                            <h1 className="text-5xl font-black uppercase tracking-tighter text-black">
+                                Join the mission
+                            </h1>
+                            <p className="text-black/60 font-black uppercase tracking-widest text-xs">
+                                Create your account and start your journey with AI.
+                            </p>
+                        </div>
+
+                        {/* Neo-Brutalist Panel */}
+                        <div className="relative group">
+                            <Card className="relative border-4 border-black rounded-none bg-white shadow-hard p-8 md:p-10">
+                                <form className="space-y-6" onSubmit={handleSubmit}>
+                                    {error && (
+                                        <div className="bg-red-400 border-4 border-black px-4 py-3 text-[14px] font-black uppercase text-black shadow-hard">
+                                            {error}
+                                        </div>
+                                    )}
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black uppercase tracking-widest text-black">Full Name</label>
+                                        <Input
+                                            id="name"
+                                            placeholder="Enter your name"
+                                            type="text"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            required
+                                            className="bg-white border-4 border-black text-black placeholder:text-black/40 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-primary h-14 rounded-none text-[15px] font-bold shadow-hard"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black uppercase tracking-widest text-black">Email Address</label>
+                                        <Input
+                                            id="email"
+                                            placeholder="name@example.com"
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                            className="bg-white border-4 border-black text-black placeholder:text-black/40 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-primary h-14 rounded-none text-[15px] font-bold shadow-hard"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black uppercase tracking-widest text-black">Password</label>
+                                        <Input
+                                            id="password"
+                                            placeholder="••••••••"
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                            className="bg-white border-4 border-black text-black placeholder:text-black/40 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-primary h-14 rounded-none text-[15px] font-bold shadow-hard"
+                                        />
+                                    </div>
+                                    <Button 
+                                        type="submit" 
+                                        disabled={loading}
+                                        className="w-full bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none h-14 rounded-none text-[16px] font-black uppercase tracking-widest transition-all"
+                                    >
+                                        {loading ? "Creating Account..." : "Create Account"}
+                                    </Button>
+
+                                    <div className="relative py-4">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <span className="w-full border-t-4 border-black"></span>
+                                        </div>
+                                        <div className="relative flex justify-center text-xs uppercase">
+                                            <span className="bg-white px-4 font-black text-black border-4 border-black">Or continue with</span>
+                                        </div>
+                                    </div>
+
+                                    <Button 
+                                        type="button" 
+                                        variant="outline"
+                                        className="w-full bg-white text-black border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none h-14 rounded-none text-[16px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-3"
+                                        onClick={() => window.location.href = `${API_BASE}/auth/google`}
+                                    >
+                                        <svg className="h-5 w-5" viewBox="0 0 24 24">
+                                            <path
+                                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                                fill="#4285F4"
+                                            />
+                                            <path
+                                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                                fill="#34A853"
+                                            />
+                                            <path
+                                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                                                fill="#FBBC05"
+                                            />
+                                            <path
+                                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"
+                                                fill="#EA4335"
+                                            />
+                                        </svg>
+                                        Google
+                                    </Button>
+                                </form>
+                            </Card>
+                        </div>
+
+                        <p className="text-center text-[13px] font-black uppercase tracking-widest text-black">
+                            Already have an account?{" "}
+                            <Link href="/auth/login" className="bg-primary px-1 border-2 border-black hover:bg-primary/80 transition-colors">
+                                Sign in
                             </Link>
                         </p>
-                    </Card>
+                    </div>
                 </div>
             </div>
         </div>

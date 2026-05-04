@@ -21,7 +21,7 @@ const NAV_LINKS = [
     { name: "Coach", href: "/dashboard/coach" },
     { name: "Analysis", href: "/dashboard/analysis" },
     { name: "Projects", href: "/dashboard/projects" },
-    { name: "Resources", href: "/dashboard/resources" },
+    { name: "Progress", href: "/dashboard/progress" },
 ]
 
 export function Header() {
@@ -30,25 +30,25 @@ export function Header() {
 
     return (
         <header className="fixed top-6 left-0 w-full z-50 flex h-20 items-center justify-between px-8 bg-transparent">
-            {/* Logo area - Pill style */}
+            {/* Logo area */}
             <div className="flex items-center gap-3">
-                <div className="flex items-center gap-3 px-6 py-3 rounded-full border border-black/5 bg-white/60 backdrop-blur-xl shadow-sm">
-                    <div className="h-8 w-8 rounded-full bg-foreground flex items-center justify-center">
-                        <Target className="h-4 w-4 text-white" />
+                <div className="flex items-center gap-3 px-6 py-3 bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                    <div className="h-8 w-8 bg-black flex items-center justify-center">
+                        <Target className="h-6 w-6 text-white" />
                     </div>
-                    <span className="font-heading font-medium text-xl tracking-tight text-foreground">GapSense AI</span>
+                    <span className="font-black text-xl tracking-tight text-black uppercase">GapSense AI</span>
                 </div>
             </div>
 
-            {/* Centered Navigation Pills - Floating */}
-            <nav className="hidden xl:flex items-center gap-1 bg-white/60 backdrop-blur-2xl border border-white/80 p-1.5 rounded-full shadow-premium">
+            {/* Centered Navigation */}
+            <nav className="hidden xl:flex items-center gap-3 bg-white border-4 border-black p-2 shadow-hard">
                 {NAV_LINKS.map(link => {
                     const isActive = pathname === link.href
                     return (
                         <Link 
                             key={link.name} 
                             href={link.href}
-                            className={`px-5 py-2.5 rounded-full text-[13px] font-semibold transition-all duration-300 ${isActive ? 'bg-[#1B1C1D] text-white shadow-lg' : 'text-foreground/70 hover:text-foreground hover:bg-black/5'}`}
+                            className={`px-5 py-2 text-[13px] font-black uppercase tracking-widest transition-all duration-200 border-2 border-transparent ${isActive ? 'bg-primary border-black text-black shadow-hard -translate-y-1 translate-x-1' : 'text-black hover:bg-muted hover:border-black'}`}
                         >
                             {link.name}
                         </Link>
@@ -57,42 +57,42 @@ export function Header() {
             </nav>
 
             {/* Right Side Tools */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
                 <Link href="/dashboard/settings">
-                    <Button variant="ghost" className="h-12 px-6 rounded-full bg-white/60 hover:bg-white border border-white/80 text-foreground shadow-sm flex gap-2 items-center text-sm font-semibold">
-                        <Settings className="h-4 w-4" />
-                        <span>Setting</span>
+                    <Button variant="ghost" className="h-12 px-6 bg-secondary hover:bg-secondary/80 border-4 border-black text-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all rounded-none flex gap-2 items-center text-sm font-black uppercase tracking-widest">
+                        <Settings className="h-5 w-5" />
+                        <span>Settings</span>
                     </Button>
                 </Link>
 
-                <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-white/60 hover:bg-white border border-white/80 text-foreground relative shadow-sm">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-3 right-3 h-2 w-2 rounded-full bg-primary ring-2 ring-white"></span>
+                <Button variant="ghost" size="icon" className="h-12 w-12 bg-white hover:bg-muted border-4 border-black text-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all rounded-none relative">
+                    <Bell className="h-6 w-6" />
+                    <span className="absolute top-2 right-2 h-3 w-3 bg-accent border-2 border-black"></span>
                 </Button>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-white/60 hover:bg-white border border-white/80 p-0 overflow-hidden shadow-sm">
+                        <Button variant="ghost" size="icon" className="h-12 w-12 bg-white hover:bg-muted border-4 border-black p-0 overflow-hidden shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all rounded-none">
                              {user?.picture ? (
-                                <img src={user.picture} alt={user.name} className="h-full w-full object-cover" />
+                                <img src={user.picture} alt={user.name} className="h-full w-full object-cover grayscale" />
                             ) : (
-                                <div className="h-full w-full flex items-center justify-center bg-gray-100 text-foreground font-medium text-sm">
-                                    {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
+                                <div className="h-full w-full flex items-center justify-center bg-black text-white font-black text-sm uppercase">
+                                    {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-6 w-6" />}
                                 </div>
                             )}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-white/90 backdrop-blur-xl border-white/20 text-foreground rounded-[1.5rem] shadow-premium mt-2 p-1">
-                        <DropdownMenuLabel className="px-3 pt-2 pb-1 text-sm font-semibold">{user?.name || "Account"}</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-black/5" />
-                        <DropdownMenuItem asChild className="focus:bg-black/5 cursor-pointer rounded-xl my-0.5">
+                    <DropdownMenuContent align="end" className="w-56 bg-white border-4 border-black text-black rounded-none shadow-hard mt-4 p-2">
+                        <DropdownMenuLabel className="px-3 pt-2 pb-2 text-sm font-black uppercase tracking-widest bg-primary border-2 border-black mb-2">{user?.name || "Account"}</DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-black border-b-4 border-black my-2" />
+                        <DropdownMenuItem asChild className="focus:bg-secondary cursor-pointer rounded-none my-1 font-black uppercase border-2 border-transparent focus:border-black">
                             <Link href="/dashboard/profile">Profile</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="focus:bg-black/5 cursor-pointer rounded-xl my-0.5">
+                        <DropdownMenuItem asChild className="focus:bg-secondary cursor-pointer rounded-none my-1 font-black uppercase border-2 border-transparent focus:border-black">
                             <Link href="/dashboard/settings?tab=billing">Billing</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-black/5" />
-                        <DropdownMenuItem className="focus:bg-black/5 cursor-pointer text-red-500 rounded-xl my-0.5" onClick={logout}>Log out</DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-black border-b-4 border-black my-2" />
+                        <DropdownMenuItem className="focus:bg-accent cursor-pointer text-black font-black uppercase rounded-none my-1 border-2 border-transparent focus:border-black" onClick={logout}>Log out</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

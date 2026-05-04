@@ -45,130 +45,97 @@ export function Navbar() {
     const navLinks = isDashboard ? dashboardLinks : publicLinks
 
     return (
-        <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
-            <header className="w-full max-w-5xl rounded-full border border-white/10 bg-[#050707]/80 backdrop-blur-xl shadow-2xl supports-[backdrop-filter]:bg-[#050707]/60">
-                <div className="flex h-14 items-center justify-between px-6">
+        <header className="fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between px-4 md:px-8 bg-white border-b-4 border-black w-full">
+            {/* Logo area */}
+            <div className="flex items-center gap-3">
+                <Link href="/" className="flex items-center gap-3 px-2 py-1 hover:translate-x-1 hover:translate-y-1 transition-transform group">
+                    <div className="h-10 w-10 bg-black border-2 border-black flex items-center justify-center shadow-hard group-hover:shadow-none transition-shadow">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="font-black uppercase text-xl tracking-widest text-black">GapSense AI</span>
+                </Link>
+            </div>
 
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center space-x-2 mr-8">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary">
-                            <Sparkles className="h-4 w-4 fill-current" />
-                        </div>
-                        <span className="text-lg font-bold tracking-tight text-white font-heading">GapSense</span>
+            {/* Desktop Nav */}
+            <nav className="hidden lg:flex items-center gap-4">
+                {navLinks.map((link) => {
+                    const isActive = pathname === link.href
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={`group inline-flex items-center justify-center border-2 border-black px-4 py-2 text-[13px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-primary text-black shadow-hard translate-x-[-2px] translate-y-[-2px]' : 'bg-white text-black hover:translate-x-1 hover:-translate-y-1 shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none'}`}
+                        >
+                            {link.label}
+                        </Link>
+                    )
+                })}
+            </nav>
+
+            {/* Right Actions */}
+            <div className="hidden lg:flex items-center gap-4">
+                {!isDashboard && (
+                    <Link href="https://github.com/soumyajitnandi0/gapsense-ai" target="_blank" className="text-black bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all px-4 py-2 flex items-center gap-2 text-[13px] font-black uppercase tracking-widest">
+                        <Github className="h-4 w-4" />
+                        Star on GitHub
                     </Link>
+                )}
 
-                    {/* Desktop Nav - Centered */}
-                    <nav className="hidden md:flex items-center gap-1">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className={`group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5 focus:text-white focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-white/5 data-[state=open]:bg-white/5 ${pathname === link.href ? "text-primary" : "text-muted-foreground"
-                                    }`}
-                            >
-                                {link.label}
-                                {!isDashboard && <ChevronDown className="ml-1 h-3 w-3 transition-transform duration-300 group-hover:rotate-180" />}
-                            </Link>
-                        ))}
-                    </nav>
+                {isDashboard ? (
+                    <Link href="/dashboard">
+                        <Button variant="default" className="bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none rounded-none px-6 font-black uppercase tracking-widest text-[13px] h-12 transition-all">
+                            Go to Dashboard
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href="/auth/signup">
+                        <Button variant="default" className="bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none rounded-none px-6 font-black uppercase tracking-widest text-[13px] h-12 transition-all">
+                            Start Free Trial
+                        </Button>
+                    </Link>
+                )}
+            </div>
 
-                    {/* Right Actions */}
-                    <div className="hidden md:flex items-center gap-2 ml-auto">
-                        {!isDashboard && (
-                            <Link href="https://github.com/soumyajitnandi0/gapsense-ai" target="_blank" className="text-muted-foreground hover:text-white transition-colors mr-2">
-                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs font-medium">
-                                    <Github className="h-3.5 w-3.5" />
-                                    <span>Star on GitHub</span>
-                                </div>
-                            </Link>
-                        )}
-
-                        {isDashboard ? (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                                        <Avatar className="h-9 w-9 border border-white/10">
-                                            <AvatarImage src="/avatars/01.png" alt="@user" />
-                                            <AvatarFallback>SC</AvatarFallback>
-                                        </Avatar>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56 bg-[#0a0a0a] border-white/10 text-white" align="end" forceMount>
-                                    <DropdownMenuLabel className="font-normal">
-                                        <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-medium leading-none">Student Candidate</p>
-                                            <p className="text-xs leading-none text-muted-foreground">
-                                                student@example.com
-                                            </p>
-                                        </div>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="bg-white/10" />
-                                    <DropdownMenuItem className="focus:bg-white/10 focus:text-white">
-                                        <User className="mr-2 h-4 w-4" />
-                                        <span>Profile</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="focus:bg-white/10 focus:text-white">
-                                        <Settings className="mr-2 h-4 w-4" />
-                                        <span>Settings</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-white/10" />
-                                    <DropdownMenuItem className="text-red-400 focus:text-red-400 focus:bg-red-400/10">
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        <span>Log out</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        ) : (
-                            <Link href="/auth/signup">
-                                <Button variant="default" className="bg-white text-black hover:bg-white/90 rounded-full px-6 font-semibold h-9">
-                                    Start Free Trial
-                                </Button>
-                            </Link>
-                        )}
-                    </div>
-
-                    {/* Mobile Nav */}
-                    <div className="md:hidden ml-auto">
-                        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-white">
-                                    <Menu className="h-5 w-5" />
-                                    <span className="sr-only">Toggle menu</span>
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="top" className="bg-[#050707] border-b border-white/10">
-                                <div className="flex flex-col gap-6 mt-6 items-center">
-                                    {navLinks.map((link) => (
-                                        <Link
-                                            key={link.href}
-                                            href={link.href}
-                                            className={`text-lg font-medium hover:text-white ${pathname === link.href ? "text-primary" : "text-muted-foreground"
-                                                }`}
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    ))}
-                                    <div className="flex flex-col gap-3 mt-4 w-full max-w-xs">
-                                        {isDashboard ? (
-                                            <Link href="/" onClick={() => setIsOpen(false)}>
-                                                <Button variant="outline" className="w-full justify-center text-red-400 border-red-400/20 hover:bg-red-400/10 rounded-full">
-                                                    <LogOut className="mr-2 h-4 w-4" />
-                                                    Log out
-                                                </Button>
-                                            </Link>
-                                        ) : (
-                                            <Link href="/auth/signup" onClick={() => setIsOpen(false)}>
-                                                <Button className="w-full bg-white text-black hover:bg-white/90 rounded-full">Start Free Trial</Button>
-                                            </Link>
-                                        )}
-                                    </div>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
-                    </div>
-                </div>
-            </header>
-        </div>
+            {/* Mobile Nav */}
+            <div className="lg:hidden ml-auto">
+                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-black bg-white border-4 border-black shadow-hard rounded-none h-12 w-12 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                            <Menu className="h-6 w-6 font-black" />
+                            <span className="sr-only">Toggle menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="top" className="bg-white border-b-8 border-black">
+                        <div className="flex flex-col gap-6 mt-8 items-center pb-6">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`text-2xl font-black uppercase tracking-widest ${pathname === link.href ? "text-primary bg-black px-4 py-2" : "text-black hover:bg-primary px-4 py-2 border-2 border-transparent hover:border-black transition-all"}`}
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                            <div className="flex flex-col gap-4 mt-8 w-full max-w-xs">
+                                {isDashboard ? (
+                                    <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                                        <Button className="w-full bg-black text-white border-4 border-black shadow-hard rounded-none h-14 font-black uppercase tracking-widest text-lg hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                                            Open Dashboard
+                                        </Button>
+                                    </Link>
+                                ) : (
+                                    <Link href="/auth/signup" onClick={() => setIsOpen(false)}>
+                                        <Button className="w-full bg-primary text-black border-4 border-black shadow-hard rounded-none h-14 font-black uppercase tracking-widest text-lg hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                                            Start Free Trial
+                                        </Button>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </header>
     )
 }

@@ -11,6 +11,17 @@ export interface IUser extends Document {
   githubUsername?: string;
   githubAccessToken?: string;
   githubConnectedAt?: Date;
+  // Notion integration
+  notionAccessToken?: string;
+  notionWorkspaceId?: string;
+  notionWorkspaceName?: string;
+  notionBotId?: string;
+  notionConnectedAt?: Date;
+  // LinkedIn integration
+  linkedinAccessToken?: string;
+  linkedinRefreshToken?: string;
+  linkedinId?: string;
+  linkedinConnectedAt?: Date;
   onboardingComplete?: boolean;
   lastLogin: Date;
   createdAt: Date;
@@ -68,6 +79,47 @@ const UserSchema: Schema = new Schema(
       type: Date,
       default: null,
     },
+    // Notion integration fields
+    notionAccessToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+    notionWorkspaceId: {
+      type: String,
+      default: null,
+    },
+    notionWorkspaceName: {
+      type: String,
+      default: null,
+    },
+    notionBotId: {
+      type: String,
+      default: null,
+    },
+    notionConnectedAt: {
+      type: Date,
+      default: null,
+    },
+    // LinkedIn integration fields
+    linkedinAccessToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+    linkedinRefreshToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+    linkedinId: {
+      type: String,
+      default: null,
+    },
+    linkedinConnectedAt: {
+      type: Date,
+      default: null,
+    },
     lastLogin: {
       type: Date,
       default: Date.now,
@@ -89,5 +141,7 @@ const UserSchema: Schema = new Schema(
 UserSchema.index({ email: 1 });
 UserSchema.index({ googleId: 1 });
 UserSchema.index({ githubId: 1 });
+UserSchema.index({ notionWorkspaceId: 1 });
+UserSchema.index({ linkedinId: 1 });
 
 export default mongoose.model<IUser>('User', UserSchema);

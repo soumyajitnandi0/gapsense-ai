@@ -5,3 +5,5 @@ export * from './jdParser';
 export * from './aiCoach';
 export * from './githubService';
 export * from './aiSuggestions';
+export * from './notionService';
+export * from './linkedinService';

@@ -38,9 +38,9 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen relative overflow-hidden">
+        <div className="min-h-screen relative overflow-hidden bg-background">
             <Header />
-            <main className="pt-36 min-h-screen transition-all duration-300 relative z-10 w-full px-8 mx-auto max-w-[none]">
+            <main className="pt-40 min-h-screen transition-all duration-300 relative z-10 w-full px-8 mx-auto max-w-[none]">
                 {children}
             </main>
         </div>

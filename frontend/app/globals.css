@@ -33,34 +33,31 @@
   }
 
   body {
-    @apply text-foreground font-sans antialiased;
-    background: 
-      radial-gradient(circle at top right, rgba(244, 208, 63, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at bottom left, rgba(244, 208, 63, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 10% 30%, rgba(255, 243, 205, 0.4) 0%, transparent 40%),
-      #FAF9F6;
-    background-attachment: fixed;
+    @apply text-foreground font-sans antialiased bg-background;
+    background-image: radial-gradient(rgba(0,0,0,0.1) 2px, transparent 2px);
+    background-size: 32px 32px;
     min-height: 100vh;
   }
 }
 
-/* Glassmorphism utility classes */
+/* Neo-Brutalism utility classes */
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-white/80;
-  border-radius: 2.5rem;
+  @apply bg-background border-2 border-black shadow-hard;
+  border-radius: 0.5rem; /* Tighter radius for neo-brutalism */
 }
 
 .glass-panel-dark {
-  @apply bg-[#1A1A1A] text-white shadow-[0_30px_60px_rgb(0,0,0,0.12)];
-  border-radius: 2.5rem;
+  @apply bg-black text-white border-2 border-black shadow-hard;
+  border-radius: 0.5rem;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+  border-left: 2px solid black;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-foreground/10 rounded-full;
+  @apply bg-black rounded-none border-2 border-black;
 }

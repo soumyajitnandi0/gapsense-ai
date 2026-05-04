@@ -157,10 +157,14 @@ export default function SettingsPage() {
         setSaving(true)
         try {
             await api.delete('/settings/account')
+            // Clear ALL client-side state
+            localStorage.removeItem('token')
+            localStorage.clear()
             toast({
                 title: "Account Deleted",
-                description: "Your account has been permanently deleted.",
+                description: "Your account and all data have been permanently deleted.",
             })
+            // Hard redirect to landing page
             window.location.href = '/'
         } catch (error) {
             toast({
@@ -181,39 +185,39 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="w-full pb-20 animate-in fade-in duration-500 text-[#2B2D2B]">
+        <div className="w-full pb-20 animate-in fade-in duration-500 text-black">
             {/* Header */}
             <div className="mb-10 px-2 lg:px-6">
-                <h1 className="text-4xl lg:text-[48px] font-heading font-medium tracking-tight text-[#111] mb-2">Settings</h1>
-                <p className="text-[16px] text-[#2B2D2B]/60 max-w-xl">
+                <h1 className="text-4xl lg:text-[48px] font-black uppercase tracking-tighter text-black mb-2">Settings</h1>
+                <p className="text-[16px] text-black font-bold uppercase tracking-widest max-w-xl">
                     Manage your account preferences, profile details, and security settings.
                 </p>
             </div>
 
             <div className="grid gap-12 lg:grid-cols-[280px_1fr] px-2 lg:px-6">
                 {/* Side Navigation for settings */}
-                <nav className="flex flex-col gap-2">
+                <nav className="flex flex-col gap-4">
                     <button 
                         onClick={() => setActiveTab('account')}
-                        className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl transition font-medium text-[15px] ${activeTab === 'account' ? 'bg-[#111] text-white shadow-md' : 'text-[#2B2D2B]/70 hover:bg-[#1a1a1a]/[0.04] hover:text-[#111]'}`}
+                        className={`flex items-center gap-3 px-6 py-4 rounded-none transition-all font-black uppercase tracking-widest text-[15px] border-4 border-black ${activeTab === 'account' ? 'bg-primary text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' : 'bg-white text-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_rgba(0,0,0,1)]'}`}
                     >
                         <User className="h-5 w-5" /> Account Profile
                     </button>
                     <button 
                         onClick={() => setActiveTab('appearance')}
-                        className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl transition font-medium text-[15px] ${activeTab === 'appearance' ? 'bg-[#111] text-white shadow-md' : 'text-[#2B2D2B]/70 hover:bg-[#1a1a1a]/[0.04] hover:text-[#111]'}`}
+                        className={`flex items-center gap-3 px-6 py-4 rounded-none transition-all font-black uppercase tracking-widest text-[15px] border-4 border-black ${activeTab === 'appearance' ? 'bg-primary text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' : 'bg-white text-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_rgba(0,0,0,1)]'}`}
                     >
                         <Monitor className="h-5 w-5" /> Appearance
                     </button>
                     <button 
                         onClick={() => setActiveTab('notifications')}
-                        className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl transition font-medium text-[15px] ${activeTab === 'notifications' ? 'bg-[#111] text-white shadow-md' : 'text-[#2B2D2B]/70 hover:bg-[#1a1a1a]/[0.04] hover:text-[#111]'}`}
+                        className={`flex items-center gap-3 px-6 py-4 rounded-none transition-all font-black uppercase tracking-widest text-[15px] border-4 border-black ${activeTab === 'notifications' ? 'bg-primary text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' : 'bg-white text-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_rgba(0,0,0,1)]'}`}
                     >
                         <Bell className="h-5 w-5" /> Notifications
                     </button>
                     <button 
                         onClick={() => setActiveTab('security')}
-                        className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl transition font-medium text-[15px] ${activeTab === 'security' ? 'bg-[#111] text-white shadow-md' : 'text-[#2B2D2B]/70 hover:bg-[#1a1a1a]/[0.04] hover:text-[#111]'}`}
+                        className={`flex items-center gap-3 px-6 py-4 rounded-none transition-all font-black uppercase tracking-widest text-[15px] border-4 border-black ${activeTab === 'security' ? 'bg-primary text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' : 'bg-white text-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_rgba(0,0,0,1)]'}`}
                     >
                         <Lock className="h-5 w-5" /> Privacy & Security
                     </button>
@@ -224,43 +228,45 @@ export default function SettingsPage() {
                     {activeTab === 'account' && (
                         <>
                             {/* Profile Info */}
-                            <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] border border-black/5 shadow-sm bg-white/40">
-                                <div className="mb-8 border-b border-black/5 pb-6">
-                                    <h2 className="text-2xl font-medium tracking-tight text-[#111] mb-2 flex items-center gap-2">
-                                        <KeyRound className="h-5 w-5 text-primary" /> Profile Information
+                            <div className="bg-white p-8 lg:p-10 rounded-none border-4 border-black shadow-hard">
+                                <div className="mb-8 border-b-4 border-black pb-6">
+                                    <h2 className="text-2xl font-black tracking-widest uppercase text-black mb-2 flex items-center gap-3">
+                                        <div className="h-10 w-10 bg-primary border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                            <KeyRound className="h-5 w-5 text-black" />
+                                        </div> Profile Information
                                     </h2>
-                                    <p className="text-[15px] text-[#2B2D2B]/60">
+                                    <p className="text-[15px] font-bold uppercase text-black ml-13 bg-accent px-2 border-2 border-black w-fit">
                                         Update your public display name and email address.
                                     </p>
                                 </div>
                                 
-                                <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="name" className="text-sm font-semibold text-[#111] ml-1">Display Name</Label>
+                                <div className="space-y-8">
+                                    <div className="space-y-3">
+                                        <Label htmlFor="name" className="text-sm font-black uppercase tracking-widest text-black ml-1">Display Name</Label>
                                         <Input 
                                             id="name" 
                                             value={formData.name}
                                             onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                            className="bg-white border border-black/5 shadow-sm rounded-xl h-12 px-4 text-[15px] focus-visible:ring-primary/20 text-[#111] font-medium placeholder:text-black/30" 
+                                            className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none h-14 px-4 text-[15px] focus-visible:ring-0 text-black font-bold placeholder:text-black/30" 
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-sm font-semibold text-[#111] ml-1">Email Address</Label>
+                                    <div className="space-y-3">
+                                        <Label htmlFor="email" className="text-sm font-black uppercase tracking-widest text-black ml-1">Email Address</Label>
                                         <Input 
                                             id="email" 
                                             type="email" 
                                             value={formData.email}
                                             onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                            className="bg-white border border-black/5 shadow-sm rounded-xl h-12 px-4 text-[15px] focus-visible:ring-primary/20 text-[#111] font-medium placeholder:text-black/30" 
+                                            className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none h-14 px-4 text-[15px] focus-visible:ring-0 text-black font-bold placeholder:text-black/30" 
                                         />
                                     </div>
                                     <div className="flex justify-end pt-6">
                                         <button 
                                             onClick={updateAccount}
                                             disabled={saving}
-                                            className="px-8 py-3 bg-primary text-[#111] font-semibold rounded-full hover:bg-primary/90 transition shadow-md disabled:opacity-50 flex items-center gap-2"
+                                            className="px-10 py-4 bg-primary text-black border-4 border-black font-black uppercase tracking-widest rounded-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] disabled:opacity-50 flex items-center gap-3"
                                         >
-                                            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                                            {saving && <Loader2 className="h-5 w-5 animate-spin" />}
                                             Save Changes
                                         </button>
                                     </div>
@@ -268,40 +274,42 @@ export default function SettingsPage() {
                             </div>
 
                             {/* Connected Accounts */}
-                            <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] border border-black/5 shadow-sm bg-white/40">
-                                <div className="mb-8 border-b border-black/5 pb-6">
-                                    <h2 className="text-2xl font-medium tracking-tight text-[#111] mb-2 flex items-center gap-2">
-                                        <Github className="h-5 w-5 text-primary" /> Connected Accounts
+                            <div className="bg-white p-8 lg:p-10 rounded-none border-4 border-black shadow-hard mt-10">
+                                <div className="mb-8 border-b-4 border-black pb-6">
+                                    <h2 className="text-2xl font-black uppercase tracking-widest text-black mb-2 flex items-center gap-3">
+                                        <div className="h-10 w-10 bg-primary border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                            <Github className="h-5 w-5 text-black" />
+                                        </div> Connected Accounts
                                     </h2>
-                                    <p className="text-[15px] text-[#2B2D2B]/60">
+                                    <p className="text-[15px] font-bold uppercase text-black ml-13 bg-accent px-2 border-2 border-black w-fit">
                                         Manage your connected social accounts.
                                     </p>
                                 </div>
                                 
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 bg-white border border-black/5 rounded-2xl">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-full bg-[#111] flex items-center justify-center">
-                                                <Github className="h-5 w-5 text-white" />
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-12 w-12 border-4 border-black bg-black flex items-center justify-center">
+                                                <Github className="h-6 w-6 text-white" />
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-[#111]">GitHub</p>
-                                                <p className="text-sm text-[#2B2D2B]/60">
+                                                <p className="font-black uppercase tracking-widest text-black">GitHub</p>
+                                                <p className="text-sm font-bold uppercase text-black">
                                                     {user?.githubConnected 
                                                         ? `Connected as @${user.githubUsername}` 
                                                         : 'Not connected'}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${user?.githubConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        <span className={`px-4 py-1.5 border-2 border-black rounded-none shadow-[2px_2px_0px_rgba(0,0,0,1)] text-xs font-black uppercase tracking-widest ${user?.githubConnected ? 'bg-primary text-black' : 'bg-accent text-black'}`}>
                                             {user?.githubConnected ? 'Connected' : 'Disconnected'}
                                         </span>
                                     </div>
                                     
-                                    <div className="flex items-center justify-between p-4 bg-white border border-black/5 rounded-2xl">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
-                                                <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                    <div className="flex items-center justify-between p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-12 w-12 border-4 border-black bg-blue-300 flex items-center justify-center">
+                                                <svg className="h-6 w-6 text-black" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                                                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                                                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -309,15 +317,15 @@ export default function SettingsPage() {
                                                 </svg>
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-[#111]">Google</p>
-                                                <p className="text-sm text-[#2B2D2B]/60">
+                                                <p className="font-black uppercase tracking-widest text-black">Google</p>
+                                                <p className="text-sm font-bold uppercase text-black">
                                                     {user?.authProvider === 'google' 
                                                         ? `Signed in with Google` 
                                                         : 'Not connected'}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${user?.authProvider === 'google' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        <span className={`px-4 py-1.5 border-2 border-black rounded-none shadow-[2px_2px_0px_rgba(0,0,0,1)] text-xs font-black uppercase tracking-widest ${user?.authProvider === 'google' ? 'bg-primary text-black' : 'bg-accent text-black'}`}>
                                             {user?.authProvider === 'google' ? 'Connected' : 'Not used'}
                                         </span>
                                     </div>
@@ -328,54 +336,56 @@ export default function SettingsPage() {
 
                     {/* Security Tab */}
                     {activeTab === 'security' && user?.authProvider === 'email' && (
-                        <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] border border-black/5 shadow-sm bg-white/40">
-                            <div className="mb-8 border-b border-black/5 pb-6">
-                                <h2 className="text-2xl font-medium tracking-tight text-[#111] mb-2 flex items-center gap-2">
-                                    <Lock className="h-5 w-5 text-primary" /> Change Password
+                        <div className="bg-white p-8 lg:p-10 rounded-none border-4 border-black shadow-hard">
+                            <div className="mb-8 border-b-4 border-black pb-6">
+                                <h2 className="text-2xl font-black uppercase tracking-widest text-black mb-2 flex items-center gap-3">
+                                    <div className="h-10 w-10 bg-primary border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                        <Lock className="h-5 w-5 text-black" />
+                                    </div> Change Password
                                 </h2>
-                                <p className="text-[15px] text-[#2B2D2B]/60">
+                                <p className="text-[15px] font-bold uppercase text-black ml-13 bg-accent px-2 border-2 border-black w-fit">
                                     Update your password to keep your account secure.
                                 </p>
                             </div>
                             
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="currentPassword" className="text-sm font-semibold text-[#111] ml-1">Current Password</Label>
+                            <div className="space-y-8">
+                                <div className="space-y-3">
+                                    <Label htmlFor="currentPassword" className="text-sm font-black uppercase tracking-widest text-black ml-1">Current Password</Label>
                                     <Input 
                                         id="currentPassword" 
                                         type="password"
                                         value={passwordData.currentPassword}
                                         onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                                        className="bg-white border border-black/5 shadow-sm rounded-xl h-12 px-4 text-[15px] focus-visible:ring-primary/20 text-[#111] font-medium placeholder:text-black/30" 
+                                        className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none h-14 px-4 text-[15px] focus-visible:ring-0 text-black font-bold placeholder:text-black/30" 
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="newPassword" className="text-sm font-semibold text-[#111] ml-1">New Password</Label>
+                                <div className="space-y-3">
+                                    <Label htmlFor="newPassword" className="text-sm font-black uppercase tracking-widest text-black ml-1">New Password</Label>
                                     <Input 
                                         id="newPassword" 
                                         type="password"
                                         value={passwordData.newPassword}
                                         onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                                        className="bg-white border border-black/5 shadow-sm rounded-xl h-12 px-4 text-[15px] focus-visible:ring-primary/20 text-[#111] font-medium placeholder:text-black/30" 
+                                        className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none h-14 px-4 text-[15px] focus-visible:ring-0 text-black font-bold placeholder:text-black/30" 
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="confirmPassword" className="text-sm font-semibold text-[#111] ml-1">Confirm New Password</Label>
+                                <div className="space-y-3">
+                                    <Label htmlFor="confirmPassword" className="text-sm font-black uppercase tracking-widest text-black ml-1">Confirm New Password</Label>
                                     <Input 
                                         id="confirmPassword" 
                                         type="password"
                                         value={passwordData.confirmPassword}
                                         onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                                        className="bg-white border border-black/5 shadow-sm rounded-xl h-12 px-4 text-[15px] focus-visible:ring-primary/20 text-[#111] font-medium placeholder:text-black/30" 
+                                        className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none h-14 px-4 text-[15px] focus-visible:ring-0 text-black font-bold placeholder:text-black/30" 
                                     />
                                 </div>
                                 <div className="flex justify-end pt-6">
                                     <button 
                                         onClick={updatePassword}
                                         disabled={saving}
-                                        className="px-8 py-3 bg-primary text-[#111] font-semibold rounded-full hover:bg-primary/90 transition shadow-md disabled:opacity-50 flex items-center gap-2"
+                                        className="px-10 py-4 bg-primary border-4 border-black text-black font-black uppercase tracking-widest rounded-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] disabled:opacity-50 flex items-center gap-3"
                                     >
-                                        {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                                        {saving && <Loader2 className="h-5 w-5 animate-spin" />}
                                         Update Password
                                     </button>
                                 </div>
@@ -385,62 +395,64 @@ export default function SettingsPage() {
 
                     {/* Appearance Tab */}
                     {activeTab === 'appearance' && (
-                        <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] border border-black/5 shadow-sm bg-white/40">
-                            <div className="mb-8 border-b border-black/5 pb-6">
-                                <h2 className="text-2xl font-medium tracking-tight text-[#111] mb-2 flex items-center gap-2">
-                                    <Monitor className="h-5 w-5 text-primary" /> Appearance
+                        <div className="bg-white p-8 lg:p-10 rounded-none border-4 border-black shadow-hard">
+                            <div className="mb-8 border-b-4 border-black pb-6">
+                                <h2 className="text-2xl font-black uppercase tracking-widest text-black mb-2 flex items-center gap-3">
+                                    <div className="h-10 w-10 bg-primary border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                        <Monitor className="h-5 w-5 text-black" />
+                                    </div> Appearance
                                 </h2>
-                                <p className="text-[15px] text-[#2B2D2B]/60">
+                                <p className="text-[15px] font-bold uppercase text-black ml-13 bg-accent px-2 border-2 border-black w-fit">
                                     Customize how the dashboard looks and feels on your device.
                                 </p>
                             </div>
                             
-                            <div className="space-y-8">
+                            <div className="space-y-10">
                                 <div>
-                                    <h3 className="text-sm font-semibold text-[#111] mb-4 ml-1">Color Theme</h3>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div className="border-2 border-primary rounded-2xl p-4 bg-white shadow-sm cursor-pointer text-center relative overflow-hidden">
-                                            <div className="absolute top-2 right-2 h-2.5 w-2.5 bg-primary rounded-full"></div>
-                                            <div className="w-full h-16 bg-[#FAF9F6] rounded-xl border border-black/5 mb-3 flex items-start p-2 gap-2">
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-black mb-4 ml-1">Color Theme</h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                                        <div className="border-4 border-black rounded-none p-4 bg-white shadow-[4px_4px_0px_rgba(0,0,0,1)] cursor-pointer text-center relative overflow-hidden">
+                                            <div className="absolute top-2 right-2 h-3 w-3 bg-primary border-2 border-black rounded-none"></div>
+                                            <div className="w-full h-16 bg-accent border-4 border-black mb-3 flex items-start p-2 gap-2 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                                 <div className="w-4 flex flex-col gap-1">
-                                                    <div className="h-1.5 bg-[#111]/20 rounded-full w-full"></div>
-                                                    <div className="h-1 bg-[#111]/10 rounded-full w-full"></div>
+                                                    <div className="h-1.5 bg-black rounded-none w-full"></div>
+                                                    <div className="h-1 bg-black/60 rounded-none w-full"></div>
                                                 </div>
-                                                <div className="flex-1 h-full bg-white rounded-lg shadow-sm"></div>
+                                                <div className="flex-1 h-full bg-white border-2 border-black rounded-none"></div>
                                             </div>
-                                            <p className="font-semibold text-[#111] text-[13px]">Light (Quiet Luxury)</p>
+                                            <p className="font-black uppercase tracking-widest text-black text-[13px]">Brutalist</p>
                                         </div>
-                                        <div className="border-2 border-transparent hover:border-black/10 rounded-2xl p-4 bg-white/50 shadow-sm cursor-not-allowed opacity-60 text-center">
-                                            <div className="w-full h-16 bg-[#1a1a1a] rounded-xl border border-white/5 mb-3 flex items-start p-2 gap-2">
+                                        <div className="border-4 border-black border-dashed rounded-none p-4 bg-white shadow-[4px_4px_0px_rgba(0,0,0,1)] cursor-not-allowed opacity-50 text-center relative overflow-hidden">
+                                            <div className="w-full h-16 bg-black border-4 border-black mb-3 flex items-start p-2 gap-2 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                                 <div className="w-4 flex flex-col gap-1">
-                                                    <div className="h-1.5 bg-white/30 rounded-full w-full"></div>
-                                                    <div className="h-1 bg-white/20 rounded-full w-full"></div>
+                                                    <div className="h-1.5 bg-white rounded-none w-full"></div>
+                                                    <div className="h-1 bg-white/60 rounded-none w-full"></div>
                                                 </div>
-                                                <div className="flex-1 h-full bg-black/50 rounded-lg shadow-sm"></div>
+                                                <div className="flex-1 h-full bg-black border-2 border-white rounded-none"></div>
                                             </div>
-                                            <p className="font-medium text-[#2B2D2B]/60 text-[13px]">Dark (Coming Soon)</p>
+                                            <p className="font-black uppercase tracking-widest text-black text-[13px]">Dark Mode</p>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div className="space-y-4">
-                                    <h3 className="text-sm font-semibold text-[#111] mb-2 ml-1">Interface Elements</h3>
-                                    <div className="flex items-center justify-between p-4 bg-white border border-black/5 rounded-2xl">
+                                <div className="space-y-6">
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-black mb-4 ml-1">Interface Elements</h3>
+                                    <div className="flex items-center justify-between p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                         <div>
-                                            <p className="font-semibold text-[#111]">Smooth Animations</p>
-                                            <p className="text-sm text-[#2B2D2B]/60">Enable fluid transitions between dashboard views</p>
+                                            <p className="font-black uppercase tracking-widest text-black">Smooth Animations</p>
+                                            <p className="text-sm font-bold uppercase text-black">Enable fluid transitions between dashboard views</p>
                                         </div>
-                                        <button className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-primary">
-                                            <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6" />
+                                        <button className="relative inline-flex h-8 w-14 items-center rounded-none border-4 border-black transition-colors bg-primary">
+                                            <span className="inline-block h-5 w-5 transform rounded-none border-2 border-black bg-white transition-transform translate-x-7 shadow-[2px_2px_0px_rgba(0,0,0,1)]" />
                                         </button>
                                     </div>
-                                    <div className="flex items-center justify-between p-4 bg-white border border-black/5 rounded-2xl">
+                                    <div className="flex items-center justify-between p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                         <div>
-                                            <p className="font-semibold text-[#111]">Compact View</p>
-                                            <p className="text-sm text-[#2B2D2B]/60">Decrease padding and margin to fit more content</p>
+                                            <p className="font-black uppercase tracking-widest text-black">Compact View</p>
+                                            <p className="text-sm font-bold uppercase text-black">Decrease padding and margin to fit more content</p>
                                         </div>
-                                        <button className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-gray-200">
-                                            <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" />
+                                        <button className="relative inline-flex h-8 w-14 items-center rounded-none border-4 border-black transition-colors bg-white">
+                                            <span className="inline-block h-5 w-5 transform rounded-none border-2 border-black bg-white transition-transform translate-x-1 shadow-[2px_2px_0px_rgba(0,0,0,1)]" />
                                         </button>
                                     </div>
                                 </div>
@@ -450,12 +462,14 @@ export default function SettingsPage() {
 
                     {/* Notifications Tab */}
                     {activeTab === 'notifications' && (
-                        <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] border border-black/5 shadow-sm bg-white/40">
-                            <div className="mb-8 border-b border-black/5 pb-6">
-                                <h2 className="text-2xl font-medium tracking-tight text-[#111] mb-2 flex items-center gap-2">
-                                    <Bell className="h-5 w-5 text-primary" /> Notification Preferences
+                        <div className="bg-white p-8 lg:p-10 rounded-none border-4 border-black shadow-hard">
+                            <div className="mb-8 border-b-4 border-black pb-6">
+                                <h2 className="text-2xl font-black uppercase tracking-widest text-black mb-2 flex items-center gap-3">
+                                    <div className="h-10 w-10 bg-primary border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                        <Bell className="h-5 w-5 text-black" />
+                                    </div> Notification Preferences
                                 </h2>
-                                <p className="text-[15px] text-[#2B2D2B]/60">
+                                <p className="text-[15px] font-bold uppercase text-black ml-13 bg-accent px-2 border-2 border-black w-fit">
                                     Choose what notifications you want to receive.
                                 </p>
                             </div>
@@ -466,16 +480,16 @@ export default function SettingsPage() {
                                     { key: 'assessmentReminders', label: 'Assessment Reminders', desc: 'Get reminded to complete your assessments' },
                                     { key: 'weeklyDigest', label: 'Weekly Digest', desc: 'Receive a weekly summary of your progress' },
                                 ].map((item) => (
-                                    <div key={item.key} className="flex items-center justify-between p-4 bg-white border border-black/5 rounded-2xl">
+                                    <div key={item.key} className="flex items-center justify-between p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                         <div>
-                                            <p className="font-semibold text-[#111]">{item.label}</p>
-                                            <p className="text-sm text-[#2B2D2B]/60">{item.desc}</p>
+                                            <p className="font-black uppercase tracking-widest text-black">{item.label}</p>
+                                            <p className="text-sm font-bold uppercase text-black/80">{item.desc}</p>
                                         </div>
                                         <button
                                             onClick={() => setNotifications({...notifications, [item.key]: !notifications[item.key as keyof NotificationPrefs]})}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications[item.key as keyof NotificationPrefs] ? 'bg-primary' : 'bg-gray-200'}`}
+                                            className={`relative inline-flex h-8 w-14 items-center rounded-none border-4 border-black transition-colors ${notifications[item.key as keyof NotificationPrefs] ? 'bg-primary' : 'bg-white'}`}
                                         >
-                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications[item.key as keyof NotificationPrefs] ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            <span className={`inline-block h-5 w-5 transform rounded-none border-2 border-black bg-white transition-transform shadow-[2px_2px_0px_rgba(0,0,0,1)] ${notifications[item.key as keyof NotificationPrefs] ? 'translate-x-7' : 'translate-x-1'}`} />
                                         </button>
                                     </div>
                                 ))}
@@ -483,9 +497,9 @@ export default function SettingsPage() {
                                     <button 
                                         onClick={updateNotifications}
                                         disabled={saving}
-                                        className="px-8 py-3 bg-primary text-[#111] font-semibold rounded-full hover:bg-primary/90 transition shadow-md disabled:opacity-50 flex items-center gap-2"
+                                        className="px-10 py-4 bg-primary border-4 border-black text-black font-black uppercase tracking-widest rounded-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] disabled:opacity-50 flex items-center gap-3"
                                     >
-                                        {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                                        {saving && <Loader2 className="h-5 w-5 animate-spin" />}
                                         Save Preferences
                                     </button>
                                 </div>
@@ -495,38 +509,40 @@ export default function SettingsPage() {
 
                     {/* Danger Zone - Show in security tab */}
                     {activeTab === 'security' && (
-                        <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] border border-red-200 shadow-sm bg-red-50/30">
-                            <div className="mb-6">
-                                <h2 className="text-2xl font-medium tracking-tight text-red-600 mb-2 flex items-center gap-2">
-                                    <ShieldAlert className="h-5 w-5" /> Danger Zone
+                        <div className="bg-red-400 p-8 lg:p-10 rounded-none border-4 border-black shadow-hard mt-10">
+                            <div className="mb-8 border-b-4 border-black pb-6">
+                                <h2 className="text-2xl font-black uppercase tracking-widest text-black mb-2 flex items-center gap-3">
+                                    <div className="h-10 w-10 bg-black border-4 border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                        <ShieldAlert className="h-5 w-5 text-red-400" />
+                                    </div> Danger Zone
                                 </h2>
-                                <p className="text-[15px] text-red-900/60">
+                                <p className="text-[15px] font-bold uppercase text-black ml-13 bg-white px-2 border-2 border-black w-fit">
                                     Irreversible actions regarding your account data and portfolio analytics.
                                 </p>
                             </div>
                             
-                            <div className="space-y-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-white border border-red-100 rounded-[1.5rem] shadow-sm">
+                            <div className="space-y-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                     <div>
-                                        <h4 className="font-bold text-[#111] text-[17px] mb-1">Delete Account</h4>
-                                        <p className="text-[14px] text-[#2B2D2B]/60 max-w-sm">Permanently remove all your assessment data, connected repositories, and AI analysis.</p>
+                                        <h4 className="font-black uppercase tracking-widest text-black text-xl mb-2">Delete Account</h4>
+                                        <p className="text-[14px] font-bold uppercase text-black/80 max-w-sm leading-relaxed">Permanently remove all your assessment data, connected repositories, and AI analysis.</p>
                                     </div>
                                 </div>
                                 
-                                <div className="p-6 bg-white border border-red-100 rounded-[1.5rem] shadow-sm">
-                                    <p className="text-sm text-red-600 mb-4">
+                                <div className="p-6 bg-white border-4 border-black rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)] mt-4">
+                                    <p className="text-sm font-black uppercase tracking-widest text-red-600 mb-4 bg-red-100 px-2 py-1 border-2 border-red-600 w-fit">
                                         Type <strong>{user?.email}</strong> to confirm account deletion:
                                     </p>
                                     <Input 
                                         value={deleteConfirm}
                                         onChange={(e) => setDeleteConfirm(e.target.value)}
                                         placeholder="Enter your email"
-                                        className="bg-white border border-red-200 shadow-sm rounded-xl h-12 px-4 text-[15px] focus-visible:ring-red-200 text-[#111] mb-4"
+                                        className="bg-white border-4 border-red-600 shadow-[4px_4px_0px_rgba(220,38,38,1)] rounded-none h-14 px-4 text-[15px] focus-visible:ring-0 text-black mb-6 font-bold"
                                     />
                                     <button 
                                         onClick={deleteAccount}
                                         disabled={saving || deleteConfirm !== user?.email}
-                                        className="w-full px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest border-4 border-black rounded-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] disabled:opacity-50 flex justify-center"
                                     >
                                         {saving ? 'Deleting...' : 'Permanently Delete Account'}
                                     </button>

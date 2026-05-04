@@ -4,12 +4,18 @@ import { useEffect, useState } from "react"
 import { useStore } from "@/lib/store"
 import api from "@/lib/api"
 import { useRouter } from "next/navigation"
-import { PlayCircle, Clock, CheckCircle2, ArrowRight, Target, Map } from "lucide-react"
+import { PlayCircle, Clock, CheckCircle2, ArrowRight, Target, Map, RefreshCw, Loader2, Sparkles } from "lucide-react"
+import { PremiumCard } from "@/components/ui/PremiumCard"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function RoadmapPage() {
     const { assessment, setAssessment } = useStore()
     const router = useRouter()
+    const { toast } = useToast()
     const [loading, setLoading] = useState(true)
+    const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set())
+    const [completingTask, setCompletingTask] = useState<string | null>(null)
+    const [regenerating, setRegenerating] = useState(false)
 
     useEffect(() => {
         if (!assessment) {
@@ -20,7 +26,60 @@ export default function RoadmapPage() {
         } else {
             setLoading(false)
         }
+        // Load progress to get completed tasks
+        api.get("/progress").then(res => {
+            if (res.data?.progress?.completedTasks) {
+                const ids = new Set<string>(res.data.progress.completedTasks.map((t: any) => t.taskId))
+                setCompletedTasks(ids)
+            } else if (res.data?.skillProgress) {
+                const ids = new Set<string>(res.data.skillProgress.filter((t: any) => t.completed).map((t: any) => t.id))
+                setCompletedTasks(ids)
+            }
+        }).catch(() => {})
     }, [assessment])
+
+    const handleCompleteTask = async (taskId: string, milestoneWeek: number) => {
+        if (completedTasks.has(taskId) || completingTask) return
+        setCompletingTask(taskId)
+        
+        // Optimistic update
+        setCompletedTasks(prev => new Set([...prev, taskId]))
+
+        try {
+            await api.post('/progress/complete-task', { taskId, milestoneWeek })
+            toast({ title: "Task completed!", description: "Keep up the momentum!" })
+        } catch (error: any) {
+            // Revert on failure
+            setCompletedTasks(prev => {
+                const next = new Set(prev)
+                next.delete(taskId)
+                return next
+            })
+            // Silently handle 404 (progress not initialized)
+            if (error.response?.status !== 404) {
+                toast({ title: "Error", description: "Failed to mark task as complete.", variant: "destructive" })
+            }
+        } finally {
+            setCompletingTask(null)
+        }
+    }
+
+    const handleRegenerate = async () => {
+        if (!assessment?._id || regenerating) return
+        setRegenerating(true)
+        try {
+            const res = await api.post(`/roadmaps/${assessment._id}/regenerate`, { durationDays: 60 })
+            if (res.data?.roadmap) {
+                setAssessment({ ...assessment, roadmap: res.data.roadmap })
+                setCompletedTasks(new Set())
+                toast({ title: "Roadmap Regenerated", description: "A fresh 60-day plan has been created based on your current gaps." })
+            }
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to regenerate roadmap.", variant: "destructive" })
+        } finally {
+            setRegenerating(false)
+        }
+    }
 
     if (loading) {
         return (
@@ -51,75 +110,177 @@ export default function RoadmapPage() {
 
     const { roadmap } = assessment
     const milestones = roadmap.milestones || []
+    const projectSuggestions = roadmap.projectSuggestions || []
+
+    // Calculate progress
+    const totalTasks = milestones.reduce((sum: number, m: any) => sum + (m.tasks?.length || 0), 0)
+    const completedCount = completedTasks.size
+    const progressPercent = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
 
     return (
-        <div className="w-full pb-20 animate-in fade-in duration-500">
+        <div className="w-full pb-20 animate-in fade-in duration-500 bg-background text-foreground">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 px-2 border-b border-black/5 pb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 px-2 border-b-4 border-black pb-8">
                 <div>
-                    <h1 className="text-4xl lg:text-[48px] font-heading font-medium tracking-tight text-[#111] mb-3">
-                        Learning Roadmap
+                    <h1 className="text-4xl lg:text-[60px] font-black uppercase tracking-tighter text-black mb-3 leading-none">
+                        Roadmap
                     </h1>
-                    <p className="text-[#2B2D2B]/60 max-w-2xl text-[16px] leading-relaxed">
-                        Your tailored <span className="font-bold text-[#111]">{roadmap.duration || 60}-day</span> acceleration plan to master the <span className="font-bold text-[#111]">{assessment.roleId?.name || "Target Developer"}</span> role.
+                    <p className="text-black/80 max-w-2xl text-[16px] leading-relaxed font-black uppercase tracking-widest mt-6">
+                        Your tailored <span className="text-black bg-primary px-1 border-2 border-black">{roadmap.duration || 60}-day</span> acceleration plan to master the <span className="text-black bg-secondary px-1 border-2 border-black">{assessment.roleId?.name || "Target Developer"}</span> role.
                     </p>
                 </div>
-                <div className="flex items-center gap-4 glass-panel px-6 py-4 rounded-[2rem] border border-white/60">
-                    <Target className="h-8 w-8 text-primary shrink-0" />
-                    <div>
-                        <div className="text-[11px] font-bold uppercase tracking-widest text-[#2B2D2B]/40 mb-0.5">Total Milestones</div>
-                        <div className="text-2xl font-normal text-[#111] leading-none">{milestones.length} <span className="text-sm font-medium text-[#2B2D2B]/50 ml-1">Weeks</span></div>
+                <div className="flex items-center gap-6">
+                    {/* Progress indicator */}
+                    <div className="bg-white border-4 border-black shadow-hard px-6 py-4 flex items-center gap-4">
+                        <Target className="h-8 w-8 text-black shrink-0" />
+                        <div>
+                            <div className="text-[11px] font-black uppercase tracking-widest text-black/60 mb-0.5">Progress</div>
+                            <div className="text-2xl font-black font-mono text-black leading-none bg-primary px-2 border-2 border-black w-fit">{progressPercent}% <span className="text-sm text-black ml-1">{completedCount}/{totalTasks} tasks</span></div>
+                        </div>
                     </div>
+                    {/* Regenerate button */}
+                    <button
+                        onClick={handleRegenerate}
+                        disabled={regenerating}
+                        className="flex items-center gap-2 px-6 py-4 bg-accent border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 text-black text-sm font-black uppercase tracking-widest disabled:opacity-50"
+                    >
+                        {regenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
+                        {regenerating ? "Regenerating..." : "Regenerate"}
+                    </button>
                 </div>
             </div>
 
             {/* Timeline View */}
-            <div className="pl-4 lg:pl-8">
-                <div className="relative border-l-2 border-black/5 ml-[24px]">
+            <div className="pl-4 lg:pl-12">
+                <div className="relative border-l-4 border-black ml-[24px]">
                     {milestones.map((m: any, i: number) => {
-                        const tasksList = m.tasks?.map((t: any) => t.title || t) || []
-                        const isActive = i === 0;
+                        const tasks = m.tasks || []
+                        const weekCompleted = tasks.every((t: any) => completedTasks.has(t.id || t._id || `task-${i}-${tasks.indexOf(t)}`))
+                        const isActive = !weekCompleted && (i === 0 || milestones.slice(0, i).every((prev: any) => 
+                            (prev.tasks || []).every((t: any) => completedTasks.has(t.id || t._id || `task-${milestones.indexOf(prev)}-${(prev.tasks || []).indexOf(t)}`))
+                        ))
 
                         return (
-                            <div key={i} className={`relative pl-12 lg:pl-16 pb-12 last:pb-0 group transition-all duration-500 ${isActive ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`}>
+                            <div key={i} className={`relative pl-12 lg:pl-20 pb-16 last:pb-0 group transition-all duration-500 ${isActive ? 'opacity-100' : weekCompleted ? 'opacity-80' : 'opacity-80 hover:opacity-100'}`}>
                                 {/* Node icon attached to the line */}
-                                <div className="absolute left-[-25px] top-4 h-12 w-12 rounded-full border-[6px] border-[#FAFAF8] flex items-center justify-center shadow-sm bg-white transition-transform group-hover:scale-110 duration-300">
-                                    {isActive ? (
-                                        <div className="h-full w-full bg-primary flex items-center justify-center rounded-full"><PlayCircle className="h-5 w-5 text-[#111]"/></div>
+                                <div className="absolute left-[-26px] top-4 h-12 w-12 border-4 border-black flex items-center justify-center bg-white transition-transform group-hover:scale-110 duration-300">
+                                    {weekCompleted ? (
+                                        <div className="h-full w-full bg-accent flex items-center justify-center"><CheckCircle2 className="h-6 w-6 text-black"/></div>
+                                    ) : isActive ? (
+                                        <div className="h-full w-full bg-primary flex items-center justify-center"><PlayCircle className="h-6 w-6 text-black"/></div>
                                     ) : (
-                                        <div className="h-full w-full bg-[#1A1A1A] flex items-center justify-center rounded-full"><div className="h-1.5 w-1.5 bg-white/50 rounded-full"/></div>
+                                        <div className="h-full w-full bg-black flex items-center justify-center"><div className="h-2 w-2 bg-white"/></div>
                                     )}
                                 </div>
 
                                 {/* Content Card */}
-                                <div className={`p-8 lg:p-10 rounded-[2.5rem] border transition-all duration-300 shadow-sm ${isActive ? 'bg-white glass-panel border-primary/20 shadow-[0_20px_60px_rgb(0,0,0,0.06)]' : 'bg-white/50 border-white/80 hover:bg-white hover:shadow-md'}`}>
-                                    <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-8 gap-4">
+                                <div className={`p-8 lg:p-12 border-4 border-black transition-all duration-300 shadow-hard-lg ${isActive ? 'bg-primary' : weekCompleted ? 'bg-muted border-black' : 'bg-white hover:bg-[#fafafa]'}`}>
+                                    <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-10 gap-4">
                                         <div>
-                                            <span className={`text-[11px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 inline-block ${isActive ? 'bg-primary border border-primary/20 text-[#111]' : 'bg-white border border-black/5 text-[#2B2D2B]/60'}`}>
+                                            <span className={`text-[13px] font-black uppercase tracking-widest px-4 py-2 border-2 border-black mb-4 inline-block shadow-hard ${isActive ? 'bg-white text-black' : weekCompleted ? 'bg-white text-black' : 'bg-secondary text-black'}`}>
                                                 Week {m.week}
                                             </span>
-                                            <h3 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111]">{m.title}</h3>
+                                            <h3 className="text-3xl lg:text-4xl font-black uppercase tracking-tight text-black">{m.title}</h3>
                                         </div>
-                                        <button className={`h-14 w-14 rounded-full border shrink-0 flex items-center justify-center transition-colors ${isActive ? 'border-black/5 bg-[#1a1a1a] text-white hover:bg-black' : 'border-black/5 bg-white text-[#2B2D2B]/30 hover:text-[#111] hover:bg-black/5'}`}>
-                                            {isActive ? <ArrowRight className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
-                                        </button>
+                                        {isActive && (
+                                            <span className="text-[13px] uppercase tracking-widest font-black text-black bg-white px-4 py-2 border-2 border-black shadow-hard mt-2">
+                                                Active Sprint
+                                            </span>
+                                        )}
                                     </div>
 
-                                    {/* Tasks Grid */}
-                                    {tasksList.length > 0 && (
-                                        <div className="grid lg:grid-cols-2 gap-4">
-                                            {tasksList.map((task: string, tIdx: number) => (
-                                                <div key={tIdx} className={`flex items-start gap-4 p-5 rounded-[1.5rem] border ${isActive ? 'bg-[#fafafa] border-black/5' : 'bg-[#1a1a1a]/[0.01] border-black/[0.03]'}`}>
-                                                    <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 border mt-0.5 ${isActive ? 'bg-white border-black/10' : 'bg-transparent border-black/10'}`}>
-                                                        <div className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-primary' : 'bg-black/20'}`}/>
+                                    {/* Tasks Grid with Completion */}
+                                    {tasks.length > 0 && (
+                                        <div className="grid lg:grid-cols-2 gap-6">
+                                            {tasks.map((task: any, tIdx: number) => {
+                                                const taskId = task.id || task._id || `task-${i}-${tIdx}`
+                                                const isCompleted = completedTasks.has(taskId)
+                                                const isCompleting = completingTask === taskId
+                                                const taskTitle = task.title || task
+
+                                                return (
+                                                    <div 
+                                                        key={tIdx}
+                                                        className={`flex flex-col p-6 border-4 border-black transition-transform duration-200 shadow-hard hover:-translate-y-1 hover:translate-x-1 hover:shadow-none ${
+                                                            isCompleted 
+                                                                ? 'bg-muted' 
+                                                                : isActive 
+                                                                    ? 'bg-white' 
+                                                                    : 'bg-white'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-start gap-4 mb-4 cursor-pointer" onClick={() => !isCompleted && handleCompleteTask(taskId, m.week || i + 1)}>
+                                                            <div className={`h-8 w-8 flex items-center justify-center shrink-0 border-4 border-black bg-white transition-all ${
+                                                                isCompleted 
+                                                                    ? 'bg-accent' 
+                                                                    : isCompleting 
+                                                                        ? 'bg-primary' 
+                                                                        : 'bg-white'
+                                                            }`}>
+                                                                {isCompleted ? (
+                                                                    <CheckCircle2 className="h-6 w-6 text-black" strokeWidth={4} />
+                                                                ) : isCompleting ? (
+                                                                    <Loader2 className="h-4 w-4 animate-spin text-black" />
+                                                                ) : (
+                                                                    <div className={`h-full w-full bg-white`}/>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className={`text-lg font-black uppercase leading-tight transition-all ${
+                                                                    isCompleted ? 'line-through decoration-black decoration-4' : 'text-black'
+                                                                }`}>{taskTitle}</p>
+                                                                {task.estimatedHours && (
+                                                                    <div className="flex items-center gap-2 mt-2 text-sm text-black font-black uppercase bg-primary w-fit px-2 border-2 border-black shadow-hard">
+                                                                        <Clock className="h-4 w-4" />
+                                                                        {task.estimatedHours}h
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {task.description && (
+                                                            <div className={`pl-12 text-sm font-medium leading-relaxed mb-4 ${isCompleted ? 'text-black/60 line-through decoration-black/60' : 'text-black'}`}>
+                                                                {task.description}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {task.resources && task.resources.length > 0 && (
+                                                            <div className="pl-12 flex flex-wrap gap-3 mt-auto pt-4 border-t-4 border-black">
+                                                                {task.resources.map((res: any, rIdx: number) => (
+                                                                    res.url ? (
+                                                                        <a 
+                                                                            key={rIdx} 
+                                                                            href={res.url} 
+                                                                            target="_blank" 
+                                                                            rel="noreferrer"
+                                                                            className={`px-3 py-1.5 text-xs font-black uppercase tracking-widest border-2 border-black shadow-hard flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-none transition-all ${
+                                                                                isCompleted 
+                                                                                    ? 'bg-muted' 
+                                                                                    : 'bg-white text-black'
+                                                                            }`}
+                                                                        >
+                                                                            {res.type === 'video' ? <PlayCircle className="h-4 w-4" /> : <Map className="h-4 w-4" />}
+                                                                            {res.title}
+                                                                        </a>
+                                                                    ) : (
+                                                                        <span key={rIdx} className={`px-3 py-1.5 text-xs font-black uppercase tracking-widest border-2 border-black shadow-hard flex items-center gap-2 ${
+                                                                            isCompleted 
+                                                                                ? 'bg-muted' 
+                                                                                : 'bg-secondary text-black'
+                                                                        }`}>
+                                                                            {res.title}
+                                                                        </span>
+                                                                    )
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <p className="text-[15px] text-[#2B2D2B]/80 font-medium leading-relaxed">{task}</p>
-                                                </div>
-                                            ))}
+                                                )
+                                            })}
                                         </div>
                                     )}
                                     
-                                    {tasksList.length === 0 && (
+                                    {tasks.length === 0 && (
                                         <p className="text-[#2B2D2B]/40 italic text-sm">No specific tasks defined for this week.</p>
                                     )}
                                 </div>
@@ -128,6 +289,36 @@ export default function RoadmapPage() {
                     })}
                 </div>
             </div>
+
+            {/* Project Suggestions */}
+            {projectSuggestions.length > 0 && (
+                <div className="mt-20 px-2 border-t-4 border-black pt-16">
+                    <div className="flex items-center gap-6 mb-12 bg-white border-4 border-black p-6 shadow-hard-lg">
+                        <div className="h-16 w-16 bg-secondary border-4 border-black flex items-center justify-center shadow-hard">
+                            <Sparkles className="h-8 w-8 text-black" />
+                        </div>
+                        <div>
+                            <h2 className="text-4xl font-black uppercase tracking-tight text-black">Suggested Projects</h2>
+                            <p className="text-sm font-black uppercase tracking-widest text-black/60 mt-2">Build these to strengthen your portfolio for the target role.</p>
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {projectSuggestions.map((project: any, idx: number) => (
+                            <div key={idx} className="bg-white border-4 border-black p-8 shadow-hard hover:-translate-y-2 hover:translate-x-2 hover:shadow-none transition-transform cursor-default flex flex-col">
+                                <h4 className="text-2xl font-black uppercase text-black mb-4">{project.title || project}</h4>
+                                {project.description && <p className="text-sm font-medium text-black/80 leading-relaxed mb-6">{project.description}</p>}
+                                {project.technologies && (
+                                    <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t-4 border-black">
+                                        {project.technologies.map((tech: string, tIdx: number) => (
+                                            <span key={tIdx} className="px-3 py-1.5 bg-accent border-2 border-black text-black text-xs font-black uppercase shadow-hard">{tech}</span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

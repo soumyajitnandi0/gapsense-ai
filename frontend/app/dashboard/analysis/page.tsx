@@ -76,25 +76,25 @@ export default function AnalysisPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8 px-2">
                 <div className="flex-grow">
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="h-14 w-14 rounded-full bg-white/60 border border-black/5 shadow-sm flex items-center justify-center">
-                            <Target className="h-6 w-6 text-primary" />
+                        <div className="h-16 w-16 bg-primary border-4 border-black shadow-hard flex items-center justify-center hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                            <Target className="h-8 w-8 text-black" />
                         </div>
-                        <h1 className="text-5xl lg:text-[64px] font-heading font-medium tracking-tight text-[#1B1C1D] leading-none">
+                        <h1 className="text-5xl lg:text-[64px] font-black uppercase tracking-tighter text-black leading-none">
                             Goal Alignment
                         </h1>
                     </div>
-                    <p className="text-foreground/40 text-sm font-bold uppercase tracking-[0.2em] ml-1">
-                        Target Role: <span className="text-foreground/80">{assessment.roleId?.name || "Target Role"}</span>
+                    <p className="text-black font-black uppercase tracking-widest text-sm ml-1 bg-white border-2 border-black px-3 py-1 w-fit shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                        Target Role: <span className="text-primary">{assessment.roleId?.name || "Target Role"}</span>
                     </p>
                 </div>
                 <Button 
                     onClick={handleRecompute} 
                     disabled={isRecomputing} 
-                    className="h-14 px-8 rounded-full bg-primary text-foreground hover:bg-primary/90 font-bold shadow-lg transition-transform hover:-translate-y-1"
+                    className="h-16 px-8 rounded-none border-4 border-black bg-primary text-black hover:bg-primary hover:translate-y-1 hover:translate-x-1 hover:shadow-none font-black uppercase tracking-widest shadow-hard transition-all"
                 >
                     {isRecomputing ? (
                        <span className="flex items-center gap-2">
-                           <div className="h-4 w-4 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+                           <div className="h-4 w-4 border-4 border-black border-t-transparent rounded-full animate-spin" />
                            Recomputing...
                        </span>
                     ) : "Recompute Score"}
@@ -104,22 +104,24 @@ export default function AnalysisPage() {
             {/* Top Grid: Readiness vs Subscores */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch mb-10">
                 {/* Left Column: Overall Readiness */}
-                <PremiumCard className="lg:col-span-4 h-auto min-h-[500px] flex flex-col justify-between items-center text-center py-16 shadow-premium border-white">
-                    <h2 className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.25em] mb-4">Overall Readiness</h2>
+                <PremiumCard className="lg:col-span-4 h-auto min-h-[500px] flex flex-col justify-between items-center text-center py-16 shadow-hard border-4 border-black rounded-none bg-white">
+                    <h2 className="text-sm font-black text-black uppercase tracking-widest mb-4 bg-primary px-4 py-1 border-2 border-black">Overall Readiness</h2>
                     
                     <div className="relative w-72 h-72 flex items-center justify-center my-8">
-                        <svg className="w-full h-full -rotate-90 scale-110" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(0,0,0,0.03)" strokeWidth="12" strokeDasharray="5 5" />
-                            <circle cx="50" cy="50" r="44" fill="none" stroke="#1B1C1D" strokeWidth="12" strokeLinecap="round" strokeDasharray="276" strokeDashoffset={276 - (276 * score) / 100} className="transition-all duration-[2s] ease-out shadow-2xl" />
-                        </svg>
-                        <div className="absolute flex flex-col items-center">
-                            <span className="text-[90px] font-light tracking-tighter leading-none">{score}</span>
-                            <span className="text-[13px] font-bold text-foreground/40 uppercase tracking-[0.2em] mt-2">/ 100</span>
+                        <div className="w-full h-full border-8 border-black rounded-full flex items-center justify-center bg-white shadow-hard relative overflow-hidden">
+                            <div 
+                                className="absolute bottom-0 w-full bg-primary transition-all duration-1000 border-t-8 border-black" 
+                                style={{ height: `${score}%` }}
+                            />
+                            <div className="relative z-10 flex flex-col items-center bg-white border-4 border-black p-4 rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                <span className="text-7xl font-black tracking-tighter leading-none text-black">{score}</span>
+                                <span className="text-sm font-black text-black uppercase tracking-widest mt-1">/ 100</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <p className="text-sm font-medium text-foreground/50 max-w-[280px] leading-relaxed mx-auto px-4 mt-4">
-                        Top <span className="font-bold text-foreground">{gaps.length} major gaps</span> stand between your current profile and the target role expectations.
+                    <p className="text-base font-black uppercase text-black max-w-[280px] leading-relaxed mx-auto px-4 mt-4">
+                        Top <span className="text-white bg-black px-2 py-1 mx-1 border-2 border-black">{gaps.length} major gaps</span> stand between your profile and target expectations.
                     </p>
                 </PremiumCard>
 
@@ -128,25 +130,25 @@ export default function AnalysisPage() {
                     {subscores.map((sub: ISubScore, idx: number) => {
                         const bgColor = getScoreColor(sub.score)
                         return (
-                            <PremiumCard variant="white" key={idx} className="p-8 h-[240px] flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.02)] border-black/[0.03] group hover:-translate-y-1 transition-all">
+                            <PremiumCard variant="white" key={idx} className="p-8 h-[240px] flex flex-col justify-between shadow-hard border-4 border-black rounded-none group hover:-translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
                                 <div className="flex justify-between items-start">
-                                    <span className="text-sm font-bold text-foreground/60">{sub.category}</span>
-                                    <div className="h-8 w-8 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                        <TrendingUp className="h-4 w-4 text-primary" />
+                                    <span className="text-sm font-black uppercase tracking-widest text-black">{sub.category}</span>
+                                    <div className="h-10 w-10 border-4 border-black bg-accent flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                        <TrendingUp className="h-5 w-5 text-black" />
                                     </div>
                                 </div>
                                 
                                 <div>
                                     <div className="flex items-baseline gap-2 mb-2">
-                                        <span className="text-6xl font-light tracking-tighter">{sub.score}</span>
-                                        <span className="text-sm font-bold text-foreground/30">/ 100</span>
+                                        <span className="text-6xl font-black tracking-tighter text-black">{sub.score}</span>
+                                        <span className="text-sm font-black uppercase text-black/50">/ 100</span>
                                     </div>
-                                    <div className="text-[11px] font-bold text-foreground/40 uppercase tracking-widest line-clamp-1 mb-8">{sub.explanation}</div>
+                                    <div className="text-[11px] font-black text-black uppercase tracking-widest line-clamp-1 mb-8 bg-primary/20 w-fit px-2 border-2 border-black/10">{sub.explanation}</div>
                                 </div>
 
-                                <div className="w-full bg-foreground/5 h-2 rounded-full overflow-hidden">
+                                <div className="w-full bg-white border-4 border-black h-4 rounded-none overflow-hidden">
                                     <div
-                                        className={cn("h-full rounded-full transition-all duration-1000", bgColor)}
+                                        className={cn("h-full border-r-4 border-black transition-all duration-1000", bgColor)}
                                         style={{ width: `${sub.score}%` }}
                                     />
                                 </div>
@@ -159,36 +161,37 @@ export default function AnalysisPage() {
             {/* Bottom Grid: Gaps & Roadmap */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
                 {/* Priority Gaps */}
-                <PremiumCard className="min-h-[500px] flex flex-col shadow-premium border-white p-10">
-                    <div className="flex items-center justify-between mb-10 pb-4 border-b border-black/[0.03]">
-                        <h3 className="text-2xl font-medium tracking-tight flex items-center gap-3">
-                            <AlertTriangle className="h-6 w-6 text-primary" /> Top Priority Gaps
+                {/* Priority Gaps */}
+                <PremiumCard className="min-h-[500px] flex flex-col shadow-hard border-4 border-black rounded-none p-10 bg-white">
+                    <div className="flex items-center justify-between mb-10 pb-4 border-b-4 border-black">
+                        <h3 className="text-2xl font-black uppercase tracking-widest flex items-center gap-3 text-black">
+                            <AlertTriangle className="h-8 w-8 text-black" /> Top Priority Gaps
                         </h3>
-                        <span className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.25em]">{gaps.length} Items</span>
+                        <span className="text-sm font-black text-black bg-primary px-3 py-1 border-4 border-black uppercase tracking-widest shadow-[2px_2px_0px_rgba(0,0,0,1)]">{gaps.length} Items</span>
                     </div>
                     
                     <div className="space-y-6 overflow-y-auto custom-scrollbar flex-grow pr-2">
                         {gaps.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-foreground/20">
-                                <CheckCircle2 className="h-16 w-16 mb-4 opacity-40" />
-                                <p className="text-xs font-black uppercase tracking-[0.4em] opacity-60">No major gaps</p>
+                            <div className="flex flex-col items-center justify-center py-20 text-black">
+                                <CheckCircle2 className="h-16 w-16 mb-4" />
+                                <p className="text-sm font-black uppercase tracking-widest">No major gaps</p>
                             </div>
                         ) : gaps.map((gap: IGap, idx: number) => (
-                            <div key={idx} className="group p-6 rounded-[1.5rem] bg-white/60 border border-black/5 hover:bg-white hover:shadow-lg transition-all flex items-start gap-5">
-                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
-                                    <Lightbulb className="h-5 w-5 text-primary" />
+                            <div key={idx} className="group p-6 bg-white border-4 border-black hover:-translate-y-1 hover:translate-x-1 hover:shadow-hard transition-all flex items-start gap-5">
+                                <div className="h-14 w-14 bg-primary flex items-center justify-center shrink-0 border-4 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                    <Lightbulb className="h-6 w-6 text-black" />
                                 </div>
                                 <div className="flex-1 pt-1">
                                     <div className="flex justify-between items-start mb-2">
-                                        <h4 className="text-base font-bold text-foreground leading-tight">{gap.skill}</h4>
+                                        <h4 className="text-lg font-black uppercase text-black leading-tight">{gap.skill}</h4>
                                         <span className={cn(
-                                            "text-[10px] font-black uppercase px-3 py-1.5 rounded-full tracking-widest border shadow-sm",
-                                            gap.priority === 'high' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-primary/20 text-foreground border-primary/30'
+                                            "text-xs font-black uppercase px-3 py-1 tracking-widest border-4 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]",
+                                            gap.priority === 'high' ? 'bg-red-400 text-black' : 'bg-primary text-black'
                                         )}>
                                             {gap.priority} Priority
                                         </span>
                                     </div>
-                                    <p className="text-sm text-foreground/60 leading-relaxed font-medium">
+                                    <p className="text-sm text-black/80 leading-relaxed font-bold uppercase">
                                         {gap.rationale}
                                     </p>
                                 </div>
@@ -198,44 +201,43 @@ export default function AnalysisPage() {
                 </PremiumCard>
 
                 {/* 60-Day Action Plan */}
-                <PremiumCard className="min-h-[500px] flex flex-col bg-[#1A1A1A] text-white shadow-[0_40px_80px_rgb(0,0,0,0.15)] p-0 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 opacity-80" />
-                    <div className="p-10 pb-6 border-b border-white/5 relative z-10">
+                <PremiumCard className="min-h-[500px] flex flex-col bg-black text-white shadow-hard border-4 border-black rounded-none p-0 relative overflow-hidden group">
+                    <div className="p-10 pb-6 border-b-4 border-white relative z-10">
                         <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-2xl font-light tracking-tight flex items-center gap-3">
-                                <Clock className="h-6 w-6 text-primary" /> {roadmap?.duration || 60}-Day Action Plan
+                            <h3 className="text-2xl font-black uppercase tracking-widest flex items-center gap-3">
+                                <Clock className="h-8 w-8 text-primary" /> {roadmap?.duration || 60}-Day Action Plan
                             </h3>
-                            <Button variant="ghost" className="text-xs font-bold text-white/50 hover:text-white uppercase tracking-widest rounded-full" onClick={() => router.push("/dashboard/roadmap")}>
-                                View Full <ArrowUpRight className="ml-1 h-3 w-3" />
+                            <Button variant="ghost" className="h-12 px-6 border-4 border-white rounded-none hover:bg-white hover:text-black font-black uppercase tracking-widest transition-all shadow-[4px_4px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none" onClick={() => router.push("/dashboard/roadmap")}>
+                                View Full <ArrowUpRight className="ml-2 h-5 w-5" />
                             </Button>
                         </div>
-                        <p className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] ml-9">Strategic Blueprint</p>
+                        <p className="text-sm font-black text-primary uppercase tracking-widest ml-11">Strategic Blueprint</p>
                     </div>
 
                     <div className="relative p-10 flex-grow space-y-10 z-10 overflow-y-auto custom-scrollbar">
                         {/* Vertical Timeline Guide Line */}
-                        <div className="absolute left-[3.3rem] top-10 bottom-10 w-px bg-white/10" />
+                        <div className="absolute left-[3.4rem] top-10 bottom-10 w-2 bg-white" />
 
                         {roadmap?.milestones?.slice(0, 3).map((item: any, idx: number) => (
-                            <div key={idx} className="relative flex gap-8 group/milestone cursor-pointer">
+                            <div key={idx} className="relative flex gap-8 group/milestone cursor-pointer hover:-translate-y-1 transition-all">
                                 {/* Timeline Node */}
                                 <div className="relative mt-2">
-                                    <div className="h-6 w-6 rounded-full bg-[#1A1A1A] border-4 border-white/20 flex items-center justify-center z-10 relative group-hover/milestone:border-primary transition-colors">
-                                        <div className="h-1.5 w-1.5 rounded-full bg-white/50 group-hover/milestone:bg-primary transition-colors" />
+                                    <div className="h-8 w-8 bg-black border-4 border-white flex items-center justify-center z-10 relative group-hover/milestone:bg-primary transition-colors">
+                                        <div className="h-3 w-3 bg-white" />
                                     </div>
                                 </div>
 
                                 {/* Content block */}
-                                <div className="flex-1 bg-white/5 rounded-[1.5rem] p-6 border border-white/5 group-hover/milestone:bg-white/10 group-hover/milestone:border-white/10 transition-all">
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.25em]">Week {item.week}</span>
-                                    <h4 className="text-lg font-medium mt-2 text-white/90 mb-6">
+                                <div className="flex-1 bg-black rounded-none p-6 border-4 border-white shadow-[4px_4px_0px_rgba(255,255,255,1)] group-hover/milestone:translate-x-1 group-hover/milestone:translate-y-1 group-hover/milestone:shadow-none transition-all">
+                                    <span className="text-xs font-black text-black bg-primary px-2 py-1 border-2 border-white uppercase tracking-widest shadow-[2px_2px_0px_rgba(255,255,255,1)]">Week {item.week}</span>
+                                    <h4 className="text-xl font-black uppercase mt-4 text-white mb-6">
                                         {item.title}
                                     </h4>
                                     
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         {item.tasks.slice(0, 2).map((task: any, tIdx: number) => (
-                                          <div key={tIdx} className="flex items-start gap-3 text-sm text-white/60 bg-black/20 p-4 rounded-xl border border-white/5">
-                                              <CheckCircle2 className="h-5 w-5 text-white/20 mt-0.5 shrink-0" />
+                                          <div key={tIdx} className="flex items-start gap-3 text-sm font-bold uppercase tracking-wide text-white bg-black p-4 border-4 border-white shadow-[2px_2px_0px_rgba(255,255,255,1)]">
+                                              <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 shrink-0" />
                                               <span className="leading-snug">{task.title}</span>
                                           </div>
                                         ))}

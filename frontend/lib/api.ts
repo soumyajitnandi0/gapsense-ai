@@ -28,9 +28,12 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401 && typeof window !== 'undefined') {
-            // Optional: redirect to login or clear token if 401 unauthorized
-            // localStorage.removeItem('token');
-            // window.location.href = '/auth/login';
+            // Don't redirect if we're already on the auth pages
+            const path = window.location.pathname;
+            if (!path.startsWith('/auth')) {
+                localStorage.removeItem('token');
+                window.location.href = '/auth/login';
+            }
         }
         return Promise.reject(error);
     }

@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { PremiumCard } from "@/components/ui/PremiumCard"
 import api from "@/lib/api"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -135,22 +136,24 @@ export default function ProgressPage() {
   if (loading) {
     return (
       <div className="w-full h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <div className="h-10 w-10 rounded-full border-4 border-black/10 border-t-primary animate-spin" />
       </div>
     )
   }
 
   if (!progress) {
     return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-8">
-        <AlertCircle className="h-16 w-16 text-white/30 mb-4" />
-        <h2 className="text-2xl font-heading font-semibold text-white mb-2">No Progress Data</h2>
-        <p className="text-muted-foreground text-center max-w-md mb-6">
-          You haven't completed onboarding yet. Start your journey by completing the onboarding process.
+      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
+        <div className="h-24 w-24 bg-primary/20 rounded-full flex items-center justify-center shadow-sm mb-6">
+          <AlertCircle className="h-10 w-10 text-primary" />
+        </div>
+        <h2 className="text-3xl font-heading font-medium text-[#111] mb-3">No Progress Data</h2>
+        <p className="text-[#2B2D2B]/60 max-w-md mb-8 text-[16px]">
+          You haven&apos;t completed onboarding yet. Start your journey by completing the onboarding process.
         </p>
-        <Button variant="glow" onClick={() => window.location.href = '/dashboard/onboarding'}>
-          Start Onboarding <ArrowRight className="h-4 w-4 ml-2" />
-        </Button>
+        <button onClick={() => window.location.href = '/dashboard/onboarding'} className="px-8 py-3 bg-[#111] text-white rounded-full font-semibold hover:bg-black transition shadow-lg flex items-center gap-2">
+          Start Onboarding <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     )
   }
@@ -158,130 +161,154 @@ export default function ProgressPage() {
   const { progress: p, assessment, skillProgress, history } = progress
 
   return (
-    <div className="w-full pb-20 text-white">
+    <div className="w-full pb-20 text-black">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl lg:text-[48px] font-heading font-medium tracking-tight text-white mb-2">
+      <div className="mb-12 border-b-4 border-black pb-8">
+        <h1 className="text-4xl lg:text-[60px] font-black uppercase tracking-tighter text-black mb-4 leading-none">
           Progress Tracker
         </h1>
-        <p className="text-[16px] text-white/60 max-w-xl">
-          Track your journey to becoming a {assessment?.roleName || 'better developer'}.
+        <p className="text-[16px] font-black uppercase tracking-widest text-black/80 max-w-xl">
+          Track your journey to becoming a <span className="text-black bg-primary px-1 border-2 border-black">{assessment?.roleName || 'better developer'}</span>.
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="p-6 rounded-2xl bg-white/5 border border-white/10"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-lime-400/10">
-              <Trophy className="h-5 w-5 text-lime-400" />
+          <PremiumCard className="p-8 h-full bg-white border-4 border-black shadow-hard rounded-none flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 border-4 border-black bg-amber-300 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <Trophy className="h-6 w-6 text-black" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest text-black">Overall Score</span>
+              </div>
+              <p className="text-5xl font-black tracking-tighter text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2 w-fit mb-4">{assessment?.overallScore || 0}<span className="text-xl font-bold ml-1">%</span></p>
             </div>
-            <span className="text-sm text-white/60">Overall Score</span>
-          </div>
-          <p className="text-3xl font-bold text-white">{assessment?.overallScore || 0}%</p>
-          <p className="text-xs text-white/40 mt-1">Readiness for {assessment?.roleName}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-black/80 bg-accent px-2 border-2 border-black w-fit mt-auto">Readiness for {assessment?.roleName}</p>
+          </PremiumCard>
         </motion.div>
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="p-6 rounded-2xl bg-white/5 border border-white/10"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-orange-400/10">
-              <Flame className="h-5 w-5 text-orange-400" />
+          <PremiumCard className="p-8 h-full bg-white border-4 border-black shadow-hard rounded-none flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 border-4 border-black bg-orange-400 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <Flame className="h-6 w-6 text-black" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest text-black">Current Streak</span>
+              </div>
+              <p className="text-5xl font-black tracking-tighter text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2 w-fit mb-4">{p.streakDays} <span className="text-xl font-bold">days</span></p>
             </div>
-            <span className="text-sm text-white/60">Current Streak</span>
-          </div>
-          <p className="text-3xl font-bold text-white">{p.streakDays} <span className="text-lg font-normal text-white/60">days</span></p>
-          <p className="text-xs text-white/40 mt-1">Keep it up!</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-black/80 bg-accent px-2 border-2 border-black w-fit mt-auto">Keep it up!</p>
+          </PremiumCard>
         </motion.div>
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="p-6 rounded-2xl bg-white/5 border border-white/10"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-blue-400/10">
-              <CheckCircle2 className="h-5 w-5 text-blue-400" />
+          <PremiumCard className="p-8 h-full bg-white border-4 border-black shadow-hard rounded-none flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 border-4 border-black bg-blue-400 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <CheckCircle2 className="h-6 w-6 text-black" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest text-black">Tasks Done</span>
+              </div>
+              <p className="text-5xl font-black tracking-tighter text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2 w-fit mb-4">{p.completedTasksCount} <span className="text-xl font-bold">/ {p.totalTasks}</span></p>
             </div>
-            <span className="text-sm text-white/60">Tasks Done</span>
-          </div>
-          <p className="text-3xl font-bold text-white">{p.completedTasksCount} <span className="text-lg font-normal text-white/60">/ {p.totalTasks}</span></p>
-          <p className="text-xs text-white/40 mt-1">{Math.round((p.completedTasksCount / p.totalTasks) * 100)}% complete</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-black/80 bg-accent px-2 border-2 border-black w-fit mt-auto">{p.totalTasks > 0 ? Math.round((p.completedTasksCount / p.totalTasks) * 100) : 0}% complete</p>
+          </PremiumCard>
         </motion.div>
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="p-6 rounded-2xl bg-white/5 border border-white/10"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-purple-400/10">
-              <Clock className="h-5 w-5 text-purple-400" />
+          <PremiumCard className="p-8 h-full bg-white border-4 border-black shadow-hard rounded-none flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-12 w-12 border-4 border-black bg-purple-400 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <Clock className="h-6 w-6 text-black" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest text-black">Est. Time Left</span>
+              </div>
+              <p className="text-5xl font-black tracking-tighter text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2 w-fit mb-4">{p.estimatedDaysRemaining} <span className="text-xl font-bold">days</span></p>
             </div>
-            <span className="text-sm text-white/60">Est. Time Left</span>
-          </div>
-          <p className="text-3xl font-bold text-white">{p.estimatedDaysRemaining} <span className="text-lg font-normal text-white/60">days</span></p>
-          <p className="text-xs text-white/40 mt-1">To achieve your goal</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-black/80 bg-accent px-2 border-2 border-black w-fit mt-auto">To achieve your goal</p>
+          </PremiumCard>
         </motion.div>
       </div>
 
       {/* Main Progress Bar */}
-      <div className="mb-8 p-6 rounded-2xl bg-white/5 border border-white/10">
-        <div className="flex items-center justify-between mb-4">
+      <PremiumCard className="mb-12 p-8 lg:p-12 bg-white border-4 border-black shadow-hard rounded-none">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Target className="h-5 w-5 text-lime-400" />
-            <span className="font-semibold text-white">Overall Progress</span>
+            <div className="h-10 w-10 border-4 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+              <Target className="h-5 w-5 text-black" />
+            </div>
+            <span className="text-2xl font-black uppercase tracking-widest text-black">Overall Progress</span>
           </div>
-          <span className="text-2xl font-bold text-lime-400">{p.percentage}%</span>
+          <span className="text-3xl font-black tracking-tight text-black bg-primary px-3 py-1 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">{p.percentage}%</span>
         </div>
-        <Progress value={p.percentage} className="h-3 bg-white/10" />
-        <div className="flex justify-between mt-2 text-xs text-white/40">
-          <span>{p.completedMilestones} of {p.totalMilestones} milestones</span>
-          <span>{p.completedTasksCount} tasks completed</span>
+        
+        {/* Brutalist Progress Bar */}
+        <div className="h-10 w-full bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden flex items-center">
+          <div 
+            className="h-full bg-primary border-r-4 border-black transition-all duration-1000 ease-out"
+            style={{ width: `${p.percentage}%` }}
+          />
         </div>
-      </div>
+        
+        <div className="flex justify-between mt-6">
+          <span className="text-xs font-black uppercase tracking-widest text-black bg-white px-2 border-2 border-black">{p.completedMilestones} of {p.totalMilestones} milestones</span>
+          <span className="text-xs font-black uppercase tracking-widest text-black bg-white px-2 border-2 border-black">{p.completedTasksCount} tasks completed</span>
+        </div>
+      </PremiumCard>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-4 mb-12">
         {(['overview', 'tasks', 'skills'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`px-8 py-4 text-sm font-black uppercase tracking-widest border-4 border-black transition-all duration-200 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none rounded-none ${
               activeTab === tab 
-                ? 'bg-white/10 text-white border border-white/20' 
-                : 'text-white/60 hover:text-white hover:bg-white/5'
+                ? 'bg-black text-white' 
+                : 'bg-white text-black'
             }`}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {tab}
           </button>
         ))}
       </div>
 
       {/* Tab Content */}
       {activeTab === 'overview' && (
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-10">
           {/* Recent Activity */}
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-            <div className="flex items-center gap-3 mb-4">
-              <Zap className="h-5 w-5 text-yellow-400" />
-              <h3 className="font-semibold text-white">Recent Activity</h3>
+          <PremiumCard className="p-8 lg:p-10 bg-white border-4 border-black shadow-hard rounded-none">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-12 w-12 border-4 border-black bg-amber-300 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                <Zap className="h-6 w-6 text-black" />
+              </div>
+              <h3 className="text-2xl font-black uppercase tracking-widest text-black">Recent Activity</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {history.length === 0 ? (
-                <p className="text-sm text-white/40">No recent activity. Start completing tasks!</p>
+                <p className="text-[15px] font-bold uppercase text-black/60 bg-accent px-4 py-2 border-2 border-black w-fit">No recent activity. Start completing tasks!</p>
               ) : (
                 history.slice(0, 5).map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-white/5">
-                    <div className="p-1.5 rounded-lg bg-lime-400/10 mt-0.5">
-                      <CheckCircle2 className="h-3 w-3 text-lime-400" />
+                  <div key={idx} className="flex items-start gap-4 p-5 bg-white border-4 border-black rounded-none shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:translate-x-1 transition-transform">
+                    <div className="h-8 w-8 border-4 border-black bg-primary flex items-center justify-center mt-1 shrink-0">
+                      <CheckCircle2 className="h-4 w-4 text-black" />
                     </div>
                     <div>
-                      <p className="text-sm text-white">{item.description}</p>
-                      <p className="text-xs text-white/40">
+                      <p className="text-[15px] font-black uppercase tracking-tight text-black mb-1 leading-tight">{item.description}</p>
+                      <p className="text-xs font-bold uppercase tracking-widest text-black/60 bg-white border-2 border-black px-2 py-0.5 w-fit">
                         {new Date(item.date).toLocaleDateString()}
                       </p>
                     </div>
@@ -289,103 +316,107 @@ export default function ProgressPage() {
                 ))
               )}
             </div>
-          </div>
+          </PremiumCard>
 
           {/* Skills Overview */}
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-            <div className="flex items-center gap-3 mb-4">
-              <Layers className="h-5 w-5 text-blue-400" />
-              <h3 className="font-semibold text-white">Skills Overview</h3>
+          <PremiumCard className="p-8 lg:p-10 bg-white border-4 border-black shadow-hard rounded-none">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-12 w-12 border-4 border-black bg-blue-400 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                <Layers className="h-6 w-6 text-black" />
+              </div>
+              <h3 className="text-2xl font-black uppercase tracking-widest text-black">Skills Overview</h3>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-8">
               <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-white/60">Mastered</span>
-                  <span className="text-white">{stats?.skills.mastered || 0} / {stats?.skills.totalRequired || 0}</span>
+                <div className="flex justify-between items-end mb-3">
+                  <span className="text-xs font-black uppercase tracking-widest text-black bg-accent px-2 border-2 border-black">Mastered</span>
+                  <span className="text-2xl font-black tracking-tight text-black bg-white border-4 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] px-3">{stats?.skills.mastered || 0} / {stats?.skills.totalRequired || 0}</span>
                 </div>
-                <Progress value={stats?.skills.coverage || 0} className="h-2 bg-white/10" />
+                <div className="h-6 w-full bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden flex items-center">
+                  <div className="h-full bg-blue-400 border-r-4 border-black" style={{ width: `${stats?.skills.coverage || 0}%` }} />
+                </div>
               </div>
               <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-white/60">Projects Completed</span>
-                  <span className="text-white">{p.completedProjects.length}</span>
+                <div className="flex justify-between items-end mb-3">
+                  <span className="text-xs font-black uppercase tracking-widest text-black bg-accent px-2 border-2 border-black">Projects Completed</span>
+                  <span className="text-2xl font-black tracking-tight text-black bg-white border-4 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] px-3">{p.completedProjects.length}</span>
                 </div>
-                <Progress 
-                  value={(p.completedProjects.length / (stats?.projects.suggestions || 1)) * 100} 
-                  className="h-2 bg-white/10" 
-                />
+                <div className="h-6 w-full bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden flex items-center">
+                  <div className="h-full bg-purple-400 border-r-4 border-black" style={{ width: `${(p.completedProjects.length / (stats?.projects.suggestions || 1)) * 100}%` }} />
+                </div>
               </div>
               <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-white/60">Milestones</span>
-                  <span className="text-white">{p.completedMilestones} / {p.totalMilestones}</span>
+                <div className="flex justify-between items-end mb-3">
+                  <span className="text-xs font-black uppercase tracking-widest text-black bg-accent px-2 border-2 border-black">Milestones</span>
+                  <span className="text-2xl font-black tracking-tight text-black bg-white border-4 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] px-3">{p.completedMilestones} / {p.totalMilestones}</span>
                 </div>
-                <Progress 
-                  value={(p.completedMilestones / p.totalMilestones) * 100} 
-                  className="h-2 bg-white/10" 
-                />
+                <div className="h-6 w-full bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden flex items-center">
+                  <div className="h-full bg-primary border-r-4 border-black" style={{ width: `${p.totalMilestones > 0 ? (p.completedMilestones / p.totalMilestones) * 100 : 0}%` }} />
+                </div>
               </div>
             </div>
-          </div>
+          </PremiumCard>
         </div>
       )}
 
       {activeTab === 'tasks' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-lime-400" />
+        <div className="space-y-8">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-black uppercase tracking-widest text-black flex items-center gap-4">
+              <div className="h-12 w-12 border-4 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                <BookOpen className="h-6 w-6 text-black" />
+              </div>
               Your Learning Tasks
             </h3>
-            <span className="text-sm text-white/60">
-              {p.completedTasksCount} / {p.totalTasks} completed
+            <span className="text-xl font-black uppercase tracking-tight text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2">
+              {p.completedTasksCount} / {p.totalTasks} <span className="text-sm tracking-widest text-black/60 ml-2">completed</span>
             </span>
           </div>
           
           {skillProgress.length === 0 ? (
-            <div className="p-8 text-center rounded-2xl bg-white/5 border border-white/10">
-              <p className="text-white/60">No tasks available. Complete onboarding to get your roadmap.</p>
-            </div>
+            <PremiumCard className="p-10 text-center bg-white border-4 border-black shadow-hard rounded-none">
+              <p className="text-[15px] font-bold uppercase text-black/60 bg-accent px-4 py-2 border-2 border-black w-fit mx-auto">No tasks available. Complete onboarding to get your roadmap.</p>
+            </PremiumCard>
           ) : (
-            <div className="grid gap-3">
+            <div className="grid gap-6">
               {skillProgress.map((task) => (
                 <div 
                   key={task.id}
-                  className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                  className={`flex flex-col md:flex-row md:items-center justify-between p-6 border-4 border-black rounded-none transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:translate-x-1 hover:shadow-none ${
                     task.completed 
-                      ? 'bg-lime-400/5 border-lime-400/20' 
-                      : 'bg-white/5 border-white/10 hover:border-white/20'
+                      ? 'bg-accent/40 opacity-80' 
+                      : 'bg-white'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    {task.completed ? (
-                      <CheckCircle2 className="h-5 w-5 text-lime-400" />
-                    ) : (
-                      <Circle className="h-5 w-5 text-white/30" />
-                    )}
+                  <div className="flex items-start gap-4 mb-4 md:mb-0">
+                    <div className={`h-10 w-10 border-4 border-black flex items-center justify-center shrink-0 ${task.completed ? 'bg-primary' : 'bg-white'}`}>
+                      {task.completed ? (
+                        <CheckCircle2 className="h-5 w-5 text-black" strokeWidth={3} />
+                      ) : (
+                        <Circle className="h-5 w-5 text-black/20" strokeWidth={3} />
+                      )}
+                    </div>
                     <div>
-                      <p className={`font-medium ${task.completed ? 'text-lime-400 line-through' : 'text-white'}`}>
+                      <p className={`text-xl font-black uppercase tracking-tight ${task.completed ? 'text-black line-through decoration-black decoration-4' : 'text-black'}`}>
                         {task.title}
                       </p>
-                      <p className="text-xs text-white/40">Week {task.milestoneWeek}</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-black bg-white border-2 border-black px-2 py-0.5 w-fit mt-2">Week {task.milestoneWeek}</p>
                     </div>
                   </div>
                   {!task.completed && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                    <button
                       onClick={() => completeTask(task.id, task.milestoneWeek)}
                       disabled={completingTask === task.id}
-                      className="text-lime-400 hover:text-lime-300 hover:bg-lime-400/10"
+                      className="px-6 py-3 bg-primary border-4 border-black text-black font-black uppercase tracking-widest text-sm shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {completingTask === task.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <>
-                          Complete <ChevronRight className="h-4 w-4 ml-1" />
+                          Complete <ChevronRight className="h-4 w-4" />
                         </>
                       )}
-                    </Button>
+                    </button>
                   )}
                 </div>
               ))}
@@ -395,60 +426,68 @@ export default function ProgressPage() {
       )}
 
       {activeTab === 'skills' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <Code2 className="h-5 w-5 text-blue-400" />
-              Skills Mastered
-            </h3>
-            <span className="text-sm text-white/60">
-              {p.completedSkills.length} skills
-            </span>
+        <div className="space-y-12">
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black uppercase tracking-widest text-black flex items-center gap-4">
+                <div className="h-12 w-12 border-4 border-black bg-blue-400 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <Code2 className="h-6 w-6 text-black" />
+                </div>
+                Skills Mastered
+              </h3>
+              <span className="text-xl font-black uppercase tracking-tight text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2">
+                {p.completedSkills.length} <span className="text-sm tracking-widest text-black/60 ml-2">skills</span>
+              </span>
+            </div>
+
+            {p.completedSkills.length === 0 ? (
+              <PremiumCard className="p-10 text-center bg-white border-4 border-black shadow-hard rounded-none">
+                <p className="text-[15px] font-bold uppercase text-black/60 bg-accent px-4 py-2 border-2 border-black w-fit mx-auto">No skills marked as mastered yet. Complete tasks to build your skills!</p>
+              </PremiumCard>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {p.completedSkills.map((skill, idx) => (
+                  <div 
+                    key={idx}
+                    className="flex items-center gap-3 p-5 bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none hover:-translate-y-1 hover:translate-x-1 hover:shadow-none transition-transform"
+                  >
+                    <Award className="h-5 w-5 text-primary shrink-0" />
+                    <span className="text-sm font-black uppercase tracking-widest text-black truncate">{skill}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {p.completedSkills.length === 0 ? (
-            <div className="p-8 text-center rounded-2xl bg-white/5 border border-white/10">
-              <p className="text-white/60">No skills marked as mastered yet. Complete tasks to build your skills!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {p.completedSkills.map((skill, idx) => (
-                <div 
-                  key={idx}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-lime-400/5 border border-lime-400/20"
-                >
-                  <Award className="h-4 w-4 text-lime-400" />
-                  <span className="text-sm text-lime-400">{skill}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* Completed Projects */}
-          <div className="mt-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-white flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-purple-400" />
+          <div className="pt-8 border-t-4 border-black">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black uppercase tracking-widest text-black flex items-center gap-4">
+                <div className="h-12 w-12 border-4 border-black bg-purple-400 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <TrendingUp className="h-6 w-6 text-black" />
+                </div>
                 Projects Completed
               </h3>
-              <span className="text-sm text-white/60">
-                {p.completedProjects.length} projects
+              <span className="text-xl font-black uppercase tracking-tight text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2">
+                {p.completedProjects.length} <span className="text-sm tracking-widest text-black/60 ml-2">projects</span>
               </span>
             </div>
 
             {p.completedProjects.length === 0 ? (
-              <div className="p-8 text-center rounded-2xl bg-white/5 border border-white/10">
-                <p className="text-white/60">No projects completed yet. Check your roadmap for project suggestions!</p>
-              </div>
+              <PremiumCard className="p-10 text-center bg-white border-4 border-black shadow-hard rounded-none">
+                <p className="text-[15px] font-bold uppercase text-black/60 bg-accent px-4 py-2 border-2 border-black w-fit mx-auto">No projects completed yet. Check your roadmap for project suggestions!</p>
+              </PremiumCard>
             ) : (
-              <div className="grid gap-3">
+              <div className="grid gap-6">
                 {p.completedProjects.map((project, idx) => (
                   <div 
                     key={idx}
-                    className="flex items-center gap-3 p-4 rounded-xl bg-purple-400/5 border border-purple-400/20"
+                    className="flex items-center gap-6 p-6 bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-none hover:-translate-y-1 hover:translate-x-1 hover:shadow-none transition-transform"
                   >
-                    <Trophy className="h-5 w-5 text-purple-400" />
-                    <span className="text-white">{project}</span>
+                    <div className="h-10 w-10 border-4 border-black bg-purple-200 flex items-center justify-center shrink-0">
+                      <Trophy className="h-5 w-5 text-black" />
+                    </div>
+                    <span className="text-xl font-black uppercase tracking-widest text-black">{project}</span>
                   </div>
                 ))}
               </div>

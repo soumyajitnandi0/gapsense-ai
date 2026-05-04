@@ -45,11 +45,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Backend returns { user: { id, name, email, picture, authProvider, ... } }
                 setUser(data.user)
             } else {
-                logout()
+                // Token is invalid/expired — clear it silently without redirect
+                localStorage.removeItem('token')
+                setUser(null)
             }
         } catch (error) {
             console.error("Failed to fetch user", error)
-            logout()
+            // Network error — clear token silently
+            localStorage.removeItem('token')
+            setUser(null)
         } finally {
             setLoading(false)
         }

@@ -67,39 +67,39 @@ export default function CoachPage() {
         <div className="flex h-[calc(100vh-14rem)] flex-col gap-10 w-full pb-0 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-start md:items-end justify-between px-2 gap-4">
                 <div className="space-y-1">
-                    <h1 className="text-5xl md:text-7xl font-light tracking-tighter text-[#111]">
+                    <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-black">
                         AI Career Coach
                     </h1>
-                    <p className="text-[#111]/50 text-base md:text-lg font-medium tracking-tight">Your intelligent edge in the job market.</p>
+                    <p className="text-black/80 text-base md:text-lg font-black uppercase tracking-widest mt-2 bg-primary w-fit px-2 border-2 border-black">Your intelligent edge in the job market.</p>
                 </div>
                 <button 
                     onClick={clearSession}
-                    className="flex items-center gap-2 px-5 py-3 bg-white shadow-xl hover:shadow-2xl border border-black/5 rounded-full hover:bg-black/5 transition-all duration-300 text-[#2B2D2B] text-sm font-bold tracking-tight active:scale-95"
+                    className="flex items-center gap-2 px-6 py-4 bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 text-black text-sm font-black uppercase tracking-widest"
                 >
-                    <Sparkles className="h-4 w-4 text-primary" />
+                    <Sparkles className="h-5 w-5 text-black" />
                     Clear Conversation
                 </button>
             </div>
 
-            <PremiumCard className="flex-1 min-h-0 flex flex-col p-0 overflow-hidden shadow-2xl relative">
+            <PremiumCard className="flex-1 min-h-0 flex flex-col p-0 overflow-hidden relative border-0 shadow-none bg-transparent">
                 <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 custom-scrollbar relative z-10 w-full max-w-5xl mx-auto">
                     {messages.map((msg, i) => (
                         <div key={i} className={`flex gap-5 transition-all ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             {msg.role === 'assistant' && (
-                                <div className="h-12 w-12 shrink-0 border-2 border-white bg-primary/20 rounded-full flex items-center justify-center shadow-md">
-                                    <Bot className="h-6 w-6 text-primary" />
+                                <div className="h-12 w-12 shrink-0 border-4 border-black bg-primary flex items-center justify-center shadow-hard">
+                                    <Bot className="h-6 w-6 text-black" />
                                 </div>
                             )}
-                            <div className={`rounded-[2rem] px-8 py-5 max-w-[85%] md:max-w-[70%] text-[16px] leading-[1.6] shadow-md transition-all ${msg.role === 'user'
-                                    ? 'bg-[#111] text-white rounded-br-md font-medium tracking-tight'
-                                    : 'bg-white/80 backdrop-blur-md border border-white/60 text-[#2B2D2B] rounded-bl-md shadow-xl'
+                            <div className={`px-8 py-5 max-w-[85%] md:max-w-[70%] text-[16px] leading-[1.6] shadow-hard border-4 border-black transition-all ${msg.role === 'user'
+                                    ? 'bg-black text-white font-black uppercase tracking-widest'
+                                    : 'bg-white text-black font-medium'
                                 }`}>
                                 {msg.content}
                             </div>
                             {msg.role === 'user' && (
-                                <div className="h-12 w-12 shrink-0 border-2 border-white overflow-hidden rounded-full shadow-md bg-[#111] flex items-center justify-center text-white font-bold text-sm">
+                                <div className="h-12 w-12 shrink-0 border-4 border-black overflow-hidden shadow-hard bg-black flex items-center justify-center text-white font-black text-sm uppercase">
                                     {user?.picture ? (
-                                        <img src={user.picture} alt={user.name} className="w-full h-full object-cover" />
+                                        <img src={user.picture} alt={user.name} className="w-full h-full object-cover grayscale" />
                                     ) : (
                                         user?.name ? user.name.charAt(0).toUpperCase() : "ME"
                                     )}
@@ -109,35 +109,35 @@ export default function CoachPage() {
                     ))}
                     {isLoading && (
                         <div className="flex gap-5 justify-start">
-                            <div className="h-12 w-12 shrink-0 border-2 border-white bg-primary/20 rounded-full flex items-center justify-center shadow-md">
-                                <Bot className="h-6 w-6 text-primary" />
+                            <div className="h-12 w-12 shrink-0 border-4 border-black bg-primary flex items-center justify-center shadow-hard">
+                                <Bot className="h-6 w-6 text-black" />
                             </div>
-                            <div className="rounded-[2rem] px-8 py-5 bg-white/80 backdrop-blur-md border border-white/60 text-[#2B2D2B] rounded-bl-md flex items-center gap-2 shadow-xl">
-                                <span className="h-2.5 w-2.5 bg-primary rounded-full animate-pulse"></span>
-                                <span className="h-2.5 w-2.5 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></span>
-                                <span className="h-2.5 w-2.5 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></span>
+                            <div className="px-8 py-5 bg-white border-4 border-black text-black flex items-center gap-2 shadow-hard">
+                                <span className="h-3 w-3 bg-black border-2 border-black animate-pulse"></span>
+                                <span className="h-3 w-3 bg-black border-2 border-black animate-pulse" style={{animationDelay: '0.2s'}}></span>
+                                <span className="h-3 w-3 bg-black border-2 border-black animate-pulse" style={{animationDelay: '0.4s'}}></span>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="p-5 md:p-8 border-t border-white/20 bg-white/30 backdrop-blur-3xl z-20">
+                <div className="p-5 md:p-8 bg-transparent z-20">
                     <form
                         onSubmit={(e) => { e.preventDefault(); handleSend() }}
                         className="flex gap-4 max-w-5xl mx-auto w-full relative"
                     >
                         <Input
-                            placeholder="Ask me anything: interview questions, career paths, salary negotiation..."
-                            className="h-16 bg-white/80 backdrop-blur-md border-2 border-white shadow-xl rounded-full pl-8 pr-20 focus-visible:ring-primary/40 focus-visible:border-primary/40 text-[16px] font-medium tracking-tight placeholder:text-foreground/30 transition-all w-full"
+                            placeholder="ASK ME ANYTHING: INTERVIEW QUESTIONS, CAREER PATHS..."
+                            className="h-16 bg-white border-4 border-black shadow-hard rounded-none pl-8 pr-20 focus-visible:ring-0 focus-visible:border-black text-[16px] font-black tracking-widest uppercase placeholder:text-black/40 transition-all w-full"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                         />
                         <button 
                             type="submit" 
                             disabled={isLoading || !input.trim()}
-                            className="absolute right-3 top-3 bottom-3 aspect-square bg-[#111] hover:bg-[#222] text-white rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed group"
+                            className="absolute right-2 top-2 bottom-2 aspect-square bg-accent border-4 border-black text-black flex items-center justify-center shadow-hard transition-all active:translate-y-1 active:translate-x-1 active:shadow-none hover:-translate-y-1 hover:translate-x-1 disabled:opacity-50 disabled:pointer-events-none group"
                         >
-                            <Send className="h-5 w-5 group-hover:block transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 relative right-[1px] top-[1px]" />
+                            <Send className="h-6 w-6" />
                         </button>
                     </form>
                 </div>
