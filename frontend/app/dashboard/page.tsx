@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowUpRight, Play, Pause, Clock, Calendar as CalendarIcon, CheckCircle2, Circle, MoreVertical, Building, Users, Briefcase, Layout, ChevronDown, Monitor } from "lucide-react"
+import { ArrowUpRight, CheckCircle2, MoreVertical, Layout, ChevronDown, Monitor } from "lucide-react"
 import Link from "next/link"
 import api from "@/lib/api"
-import { useStore } from "@/lib/store"
+import { useStore, Milestone, Role } from "@/lib/store"
 import { useAuth } from "@/contexts/AuthContext"
 import { PremiumCard } from "@/components/ui/PremiumCard"
 import { cn } from "@/lib/utils"
@@ -13,8 +13,20 @@ export default function DashboardPage() {
     const { user } = useAuth()
     const { assessment, setAssessment } = useStore()
     const [loading, setLoading] = useState(true)
-    const [progressData, setProgressData] = useState<any>(null)
-    const [localTasks, setLocalTasks] = useState<any[]>([])
+interface Task {
+    id: string
+    title: string
+    completed: boolean
+    estimatedHours: number
+    milestoneWeek: number
+}
+
+interface ProgressData {
+    percentage: number
+}
+
+    const [progressData, setProgressData] = useState<ProgressData | null>(null)
+    const [localTasks, setLocalTasks] = useState<Task[]>([])
     const [currentMonthDate, setCurrentMonthDate] = useState(new Date())
 
     useEffect(() => {
@@ -32,18 +44,18 @@ export default function DashboardPage() {
             if (resP?.data && !resP.data.error) {
                 setProgressData(resP.data.progress)
                 if (resP.data.skillProgress) {
-                    resP.data.skillProgress.forEach((t: any) => {
+                    resP.data.skillProgress.forEach((t: { id: string; completed: boolean }) => {
                         if (t.completed) completedIds.add(t.id);
                     });
                 }
             }
 
             if (currentAssessment?.roadmap?.milestones) {
-                const allTasks = currentAssessment.roadmap.milestones.flatMap((m: any, idx: number) => 
-                    (m.tasks || []).map((t: any) => ({
-                        id: t.id || t._id,
-                        title: t.title,
-                        completed: completedIds.has(t.id || t._id),
+                const allTasks = currentAssessment.roadmap.milestones.flatMap((m: Milestone, idx: number) => 
+                    (m.tasks || []).map((t) => ({
+                        id: (t.id || t._id || `task-${idx}`) as string,
+                        title: t.title || "Untitled Task",
+                        completed: completedIds.has(t.id || t._id || ""),
                         estimatedHours: t.estimatedHours || 1.5,
                         milestoneWeek: m.week || idx + 1
                     }))
@@ -66,12 +78,12 @@ export default function DashboardPage() {
                 milestoneWeek,
             })
             if (res.data?.progress) {
-                setProgressData((prev: any) => ({
+                setProgressData((prev: ProgressData | null) => ({
                     ...prev,
                     percentage: res.data.progress.percentage,
                 }))
             }
-        } catch (e: any) {
+        } catch {
              // Revert on failure
              setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, completed: false } : t))
         }
@@ -87,7 +99,7 @@ export default function DashboardPage() {
 
 
 
-    const completedTasksCount = localTasks.filter((t: any) => t.completed).length
+    const completedTasksCount = localTasks.filter((t: Task) => t.completed).length
     const progressPercent = localTasks.length > 0 ? Math.round((completedTasksCount / localTasks.length) * 100) : 0
 
     // Calendar Data Generation
@@ -123,13 +135,20 @@ export default function DashboardPage() {
     sprintStartMonday.setDate(sprintStartMonday.getDate() - sprintDayOfWeek);
 
     const milestones = assessment?.roadmap?.milestones || []
-    const calendarEvents: any[] = [];
+    interface CalendarEvent {
+        id?: string
+        title?: string
+        milestoneTitle?: string
+        date: Date
+        theme: string
+    }
+    const calendarEvents: CalendarEvent[] = [];
     
-    milestones.forEach((m: any, mIdx: number) => {
+    milestones.forEach((m: Milestone, mIdx: number) => {
         const week = m.week || (mIdx + 1);
         const tasks = m.tasks || [];
         
-        tasks.forEach((task: any, tIdx: number) => {
+        tasks.forEach((task: import("@/lib/store").Task, tIdx: number) => {
             // Distribute tasks across the week. For example, Mon, Wed, Fri...
             const daysOffsets = [0, 2, 4, 1, 3, 5, 6]; 
             const offset = ((week - 1) * 7) + daysOffsets[tIdx % 7];
@@ -187,7 +206,7 @@ export default function DashboardPage() {
                         <div className="absolute bottom-8 left-8 right-8 flex flex-col gap-4 z-20">
                             <div className="bg-white p-4 border-4 border-black shadow-hard">
                                 <h3 className="text-black text-3xl font-black uppercase tracking-tight mb-1 leading-none">{user?.name || "User"}</h3>
-                                <p className="text-black/60 text-sm font-black uppercase">{assessment?.roleId?.name || "Target Role"}</p>
+                                <p className="text-black/60 text-sm font-black uppercase">{(assessment?.roleId as Role)?.name || "Target Role"}</p>
                             </div>
                             <div className="px-4 py-2 bg-primary border-4 border-black text-black font-black text-xs uppercase tracking-widest w-fit shadow-hard">
                                 $1,200 Credits
@@ -196,7 +215,7 @@ export default function DashboardPage() {
                     </PremiumCard>
 
                     <div className="flex flex-col gap-4">
-                        <SidebarItem label="Preparation Status" expanded icon={<Monitor className="h-5 w-5" />} subLabel={assessment?.roleId?.name} subValue={`Level ${Math.floor((assessment?.overallScore || 0) / 10)}`} />
+                        <SidebarItem label="Preparation Status" expanded icon={<Monitor className="h-5 w-5" />} subLabel={(assessment?.roleId as Role)?.name} subValue={`Level ${Math.floor((assessment?.overallScore || 0) / 10)}`} />
                         <SidebarItem label="Skill Roadmap" />
                         <SidebarItem label="Interview Analytics" />
                         <SidebarItem label="Resource Library" />
@@ -347,7 +366,7 @@ export default function DashboardPage() {
                     <div className="m-0 flex-grow p-8 bg-background flex flex-col relative">
                         
                         <div className="space-y-6 overflow-y-auto custom-scrollbar pr-4 relative z-10 h-[700px]">
-                             {localTasks.length > 0 ? localTasks.map((task: any, i: number) => {
+                             {localTasks.length > 0 ? localTasks.map((task: Task, i: number) => {
                                  const isDone = task.completed;
                                  const isDoing = !isDone && (i === 0 || localTasks[i-1].completed);
 
@@ -397,7 +416,15 @@ export default function DashboardPage() {
     )
 }
 
-function SidebarItem({ label, icon, subLabel, subValue, expanded = false }: any) {
+interface SidebarItemProps {
+    label: string
+    icon?: React.ReactNode
+    subLabel?: string
+    subValue?: string
+    expanded?: boolean
+}
+
+function SidebarItem({ label, icon, subLabel, subValue, expanded = false }: SidebarItemProps) {
     return (
         <div className="w-full flex flex-col group cursor-pointer mb-4">
             <div className="flex justify-between items-center py-4 px-6 bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all">

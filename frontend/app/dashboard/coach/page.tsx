@@ -4,6 +4,7 @@ import * as React from "react"
 import { Send, Bot, Sparkles } from "lucide-react"
 import api from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { Message } from "@/lib/store"
 import { Input } from "@/components/ui/input"
 
 import { PremiumCard } from "@/components/ui/PremiumCard"
@@ -11,13 +12,13 @@ import { useAuth } from "@/contexts/AuthContext"
 
 export default function CoachPage() {
     const { user } = useAuth()
-    const [messages, setMessages] = React.useState<any[]>([])
+    const [messages, setMessages] = React.useState<Message[]>([])
     const [input, setInput] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(false)
     const [sessionId, setSessionId] = React.useState<string | null>(null)
 
     React.useEffect(() => {
-        api.get("/chat/session").then((res: any) => {
+        api.get("/chat/session").then((res: { data: { session?: { sessionId: string; messages?: Message[] } } }) => {
             if (res.data.session) {
                 setSessionId(res.data.session.sessionId)
                 if (res.data.session.messages && res.data.session.messages.length > 0) {
@@ -26,7 +27,7 @@ export default function CoachPage() {
                     setMessages([{ role: "assistant", content: "Hello! I'm your AI Career Coach. I can help you with mock interviews, resume feedback, or technical concepts. What would you like to work on today?" }])
                 }
             }
-        }).catch((err: any) => console.error("Could not load chat session", err))
+        }).catch((err: unknown) => console.error("Could not load chat session", err))
     }, [])
 
     const handleSend = async () => {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { UploadCloud, FileText, CheckCircle2, Target, Building2, ArrowRight, ArrowLeft, Sparkles } from "lucide-react"
+import { UploadCloud, FileText, CheckCircle2, Target, ArrowRight, ArrowLeft, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import api from "@/lib/api"
@@ -17,7 +17,12 @@ export default function OnboardingPage() {
     const [isAnalyzing, setIsAnalyzing] = useState(false)
     
     // Step 2 State
-    const [roles, setRoles] = useState<any[]>([])
+interface Role {
+    _id: string
+    name: string
+}
+
+    const [roles, setRoles] = useState<Role[]>([])
     const [selectedRole, setSelectedRole] = useState<string>("")
     const [jd, setJd] = useState("")
 
@@ -87,9 +92,9 @@ export default function OnboardingPage() {
             useStore.getState().setAssessment(onboardingRes.data.assessment)
 
             router.push("/dashboard")
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Analysis failed", error)
-            alert(error.response?.data?.error || "Analysis failed. Ensure your JD text is valid.")
+            alert((error as { response?: { data?: { error?: string } } }).response?.data?.error || "Analysis failed. Ensure your JD text is valid.")
         } finally {
             setIsAnalyzing(false)
         }
@@ -97,14 +102,14 @@ export default function OnboardingPage() {
 
     const renderStep1 = () => (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
-            <div className="text-center space-y-2">
-                <h1 className="text-3xl font-heading font-medium text-[#111] tracking-tight">Upload your Resume</h1>
-                <p className="text-[#2B2D2B]/60 text-sm">We&apos;ll automatically extract your skills and projects to baseline your readiness.</p>
+            <div className="text-center space-y-4 mb-8">
+                <h1 className="text-5xl font-black text-black uppercase tracking-tighter leading-none">Upload your Resume</h1>
+                <p className="text-black/60 text-xs font-black uppercase tracking-widest">We'll automatically extract your skills and projects to baseline your readiness.</p>
             </div>
             <div
-                className={`relative group flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-[2rem] transition-all duration-300
-                    ${isDragging ? "border-primary bg-primary/5" : "border-black/10 hover:border-black/20 hover:bg-[#FAF9F6]"}
-                    ${file ? "border-solid border-primary/30 bg-primary/5" : ""}
+                className={`relative group flex flex-col items-center justify-center p-12 border-4 border-dashed transition-all duration-300
+                    ${isDragging ? "border-primary bg-primary/10 shadow-hard" : "border-black bg-white shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none"}
+                    ${file ? "border-solid border-primary bg-primary/5" : ""}
                 `}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -113,29 +118,29 @@ export default function OnboardingPage() {
                 <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
                 {!file ? (
                     <>
-                        <div className={`p-4 rounded-full mb-4 transition-colors ${isDragging ? "bg-primary/10 text-primary" : "bg-black/5 text-[#2B2D2B]/60 group-hover:text-[#111]"}`}>
-                            <UploadCloud className="h-8 w-8" />
+                        <div className={`p-6 border-4 border-black transition-colors shadow-hard ${isDragging ? "bg-primary text-black" : "bg-white text-black group-hover:bg-primary"}`}>
+                            <UploadCloud className="h-10 w-10" />
                         </div>
-                        <p className="text-lg font-medium text-[#111] mb-1">{isDragging ? "Drop your resume here" : "Click or drag resume"}</p>
-                        <p className="text-xs text-[#2B2D2B]/40">PDF, DOC, DOCX (Max 5MB)</p>
+                        <p className="text-xl font-black uppercase tracking-widest text-black mt-6 mb-1">{isDragging ? "Drop your resume here" : "Click or drag resume"}</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-black/40">PDF, DOC, DOCX (Max 5MB)</p>
                     </>
                 ) : (
                     <div className="flex flex-col items-center text-center w-full">
                         {isUploading ? (
                             <>
-                                <div className="h-12 w-12 rounded-full border-2 border-black/10 border-t-primary animate-spin mb-4" />
-                                <p className="text-[#111] font-medium">Extracting Skills...</p>
-                                <p className="text-xs text-[#2B2D2B]/40 mt-1">Parsing your experience with AI</p>
+                                <div className="h-16 w-16 border-8 border-black border-t-primary animate-spin mb-6 shadow-hard" />
+                                <p className="text-black font-black uppercase tracking-widest">Extracting Skills...</p>
+                                <p className="text-xs font-black uppercase tracking-[0.2em] text-black/40 mt-2">Parsing your experience with AI</p>
                             </>
                         ) : (
                             <>
-                                <div className="p-3 rounded-full bg-primary/10 text-primary mb-3"><CheckCircle2 className="h-6 w-6" /></div>
-                                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-xl border border-black/5 mb-2 shadow-sm">
-                                    <FileText className="h-4 w-4 text-[#2B2D2B]/40" />
-                                    <span className="text-sm font-medium text-[#111] max-w-[200px] truncate">{file.name}</span>
+                                <div className="p-4 bg-primary border-4 border-black text-black mb-4 shadow-hard"><CheckCircle2 className="h-8 w-8" strokeWidth={4} /></div>
+                                <div className="flex items-center gap-3 bg-white px-6 py-3 border-4 border-black mb-4 shadow-hard">
+                                    <FileText className="h-5 w-5 text-black" />
+                                    <span className="text-sm font-black uppercase tracking-widest text-black max-w-[250px] truncate">{file.name}</span>
                                 </div>
-                                <p className="text-xs text-primary font-medium">Successfully extracted your profile</p>
-                                <Button variant="ghost" size="sm" className="mt-4 text-xs text-[#2B2D2B]/40 hover:text-[#111] relative z-10" onClick={(e) => { e.stopPropagation(); e.preventDefault(); setFile(null) }}>
+                                <p className="text-xs font-black uppercase tracking-[0.2em] text-primary bg-black px-2 py-1">Successfully extracted your profile</p>
+                                <Button variant="ghost" size="sm" className="mt-6 text-xs font-black uppercase tracking-widest text-black/40 hover:text-black border-2 border-transparent hover:border-black transition-all" onClick={(e) => { e.stopPropagation(); e.preventDefault(); setFile(null) }}>
                                     Upload a different file
                                 </Button>
                             </>
@@ -143,32 +148,32 @@ export default function OnboardingPage() {
                     </div>
                 )}
             </div>
-            <div className="flex justify-end pt-4">
-                <button className="gap-2 flex items-center px-8 py-3 rounded-full bg-[#111] text-white font-semibold shadow-lg hover:bg-black transition disabled:opacity-50" disabled={!file || isUploading} onClick={() => setStep(2)}>
-                    Next: Target Role <ArrowRight className="h-4 w-4" />
-                </button>
+            <div className="flex justify-end pt-6">
+                <Button className="h-14 px-10 bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all disabled:opacity-50" disabled={!file || isUploading} onClick={() => setStep(2)}>
+                    Next: Target Role <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
             </div>
         </motion.div>
     )
 
     const renderStep2 = () => (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
-            <div className="text-center space-y-2">
-                <h1 className="text-3xl font-heading font-medium text-[#111] tracking-tight">Role Intelligence</h1>
-                <p className="text-[#2B2D2B]/60 text-sm">Tell us what you&apos;re aiming for so we can tailor your gap analysis.</p>
+            <div className="text-center space-y-4 mb-8">
+                <h1 className="text-5xl font-black text-black uppercase tracking-tighter leading-none">Role Intelligence</h1>
+                <p className="text-black/60 text-xs font-black uppercase tracking-widest">Tell us what you're aiming for so we can tailor your gap analysis.</p>
             </div>
             <div className="space-y-6">
                 <div className="space-y-3">
                     <label className="text-sm font-semibold text-[#111] flex items-center gap-2 ml-1">
                         <Target className="h-4 w-4" /> Select Target Role
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
-                        {roles.length === 0 && <p className="text-xs text-[#2B2D2B]/40 col-span-2">No roles found...</p>}
+                    <div className="grid grid-cols-2 gap-4">
+                        {roles.length === 0 && <p className="text-xs font-black uppercase tracking-[0.2em] text-black/40 col-span-2">No roles found...</p>}
                         {roles.map((role) => (
                             <button
                                 key={role._id}
                                 onClick={() => { setSelectedRole(role._id); setJd("") }}
-                                className={`p-4 rounded-2xl border text-sm font-medium transition-all duration-300 text-left ${selectedRole === role._id ? "bg-[#111] border-[#111] text-white shadow-lg" : "bg-white border-black/5 text-[#2B2D2B] hover:bg-[#FAF9F6] hover:border-black/10"}`}
+                                className={`p-5 border-4 transition-all duration-200 text-left font-black uppercase tracking-widest text-sm ${selectedRole === role._id ? "bg-black border-black text-white shadow-hard-lg -translate-y-1 translate-x-1" : "bg-white border-black text-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none"}`}
                             >
                                 {role.name}
                             </button>
@@ -182,31 +187,31 @@ export default function OnboardingPage() {
                     <div className="flex-grow border-t border-black/10"></div>
                 </div>
 
-                <div className="space-y-3">
-                    <textarea value={jd} onChange={(e) => { setJd(e.target.value); if (e.target.value) setSelectedRole("") }} placeholder="Paste a full Job Description here..." className="w-full h-32 bg-white border border-black/5 rounded-2xl p-4 text-sm text-[#111] placeholder:text-[#2B2D2B]/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 resize-none transition-all shadow-sm" />
+                <div className="space-y-4">
+                    <textarea value={jd} onChange={(e) => { setJd(e.target.value); if (e.target.value) setSelectedRole("") }} placeholder="PASTE A FULL JOB DESCRIPTION HERE..." className="w-full h-40 bg-white border-4 border-black p-6 text-sm font-black uppercase tracking-widest text-black placeholder:text-black/20 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all shadow-hard resize-none" />
                 </div>
             </div>
 
-            <div className="flex justify-between pt-6 border-t border-black/5 mt-2">
-                <button className="gap-2 flex items-center text-[#2B2D2B]/60 hover:text-[#111] px-6 py-3 rounded-full transition font-medium" onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> Back</button>
-                <button disabled={(!selectedRole && !jd) || isAnalyzing} onClick={handleAnalyze} className="gap-2 flex items-center px-8 py-3 bg-primary text-[#111] rounded-full font-bold shadow-lg hover:bg-primary/90 transition disabled:opacity-50">
-                    {isAnalyzing ? "Analyzing..." : "Analyze Readiness"} <Sparkles className="h-4 w-4" />
-                </button>
+            <div className="flex justify-between pt-8 border-t-4 border-black mt-4">
+                <Button variant="ghost" className="h-14 px-8 border-4 border-transparent hover:border-black hover:bg-muted text-black transition font-black uppercase tracking-widest" onClick={() => setStep(1)}><ArrowLeft className="mr-2 h-5 w-5" /> Back</Button>
+                <Button disabled={(!selectedRole && !jd) || isAnalyzing} onClick={handleAnalyze} className="h-14 px-10 bg-primary text-black border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all disabled:opacity-50 font-black uppercase tracking-widest">
+                    {isAnalyzing ? "Analyzing..." : "Analyze Readiness"} <Sparkles className="ml-2 h-5 w-5" />
+                </Button>
             </div>
         </motion.div>
     )
 
     return (
-        <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
-            <div className="w-full max-w-xl">
-                <div className="flex justify-center gap-2 mb-8">
-                    <div className={`h-1.5 w-12 rounded-full transition-colors duration-500 ${step >= 1 ? "bg-primary" : "bg-black/10"}`} />
-                    <div className={`h-1.5 w-12 rounded-full transition-colors duration-500 ${step >= 2 ? "bg-primary" : "bg-black/10"}`} />
+        <div className="flex min-h-[85vh] flex-col items-center justify-center p-8 bg-background">
+            <div className="w-full max-w-2xl">
+                <div className="flex justify-center gap-4 mb-12">
+                    <div className={`h-4 w-16 border-4 border-black transition-all duration-500 shadow-hard ${step >= 1 ? "bg-primary" : "bg-white"}`} />
+                    <div className={`h-4 w-16 border-4 border-black transition-all duration-500 shadow-hard ${step >= 2 ? "bg-primary" : "bg-white"}`} />
                 </div>
-                <PremiumCard className="p-8 sm:p-10 shadow-2xl">
+                <PremiumCard className="p-10 border-8 border-black shadow-hard-xl rounded-none">
                     <AnimatePresence mode="wait">
-                        {step === 1 && <div key="step1">{renderStep1()}</div>}
-                        {step === 2 && <div key="step2">{renderStep2()}</div>}
+                        {step === 1 && <div key="step1" className="animate-in fade-in slide-in-from-right-4 duration-500">{renderStep1()}</div>}
+                        {step === 2 && <div key="step2" className="animate-in fade-in slide-in-from-right-4 duration-500">{renderStep2()}</div>}
                     </AnimatePresence>
                 </PremiumCard>
             </div>

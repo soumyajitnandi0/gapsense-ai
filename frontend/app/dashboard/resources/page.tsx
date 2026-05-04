@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo, useLayoutEffect } from "react"
 import Link from "next/link"
-import { ArrowUpRight, BookOpen, FileText, PlayCircle, Search, Lock, Filter, ExternalLink, Target } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { BookOpen, FileText, PlayCircle, Search, ExternalLink, Target } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { PremiumCard } from "@/components/ui/PremiumCard"
 import { cn } from "@/lib/utils"
@@ -34,15 +33,17 @@ export default function DashboardResourcesPage() {
     const [recommendedTags, setRecommendedTags] = useState<string[]>([])
 
     // Extract gap-based recommendations from assessment
-    useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useLayoutEffect(() => {
         if (assessment?.gaps) {
-            const tags = assessment.gaps.map((g: any) => g.skill?.toLowerCase()).filter(Boolean)
+            const tags = assessment.gaps.map((g: { skill?: string }) => g.skill?.toLowerCase()).filter((s): s is string => Boolean(s))
             setRecommendedTags(tags)
         } else {
             // Try to fetch assessment for recommendations
             api.get("/assessments/latest").then(res => {
                 if (res.data?.assessment?.gaps) {
-                    setRecommendedTags(res.data.assessment.gaps.map((g: any) => g.skill?.toLowerCase()).filter(Boolean))
+                    // eslint-disable-next-line react-hooks/set-state-in-effect
+                    setRecommendedTags(res.data.assessment.gaps.map((g: { skill?: string }) => g.skill?.toLowerCase()).filter((s: string | undefined): s is string => Boolean(s)))
                 }
             }).catch(() => {})
         }

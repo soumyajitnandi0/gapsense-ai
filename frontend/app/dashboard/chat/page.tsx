@@ -9,7 +9,12 @@ import api from "@/lib/api"
 
 export default function ChatPage() {
     const { user } = useAuth()
-    const [messages, setMessages] = React.useState<any[]>([])
+interface Message {
+    role: "user" | "assistant"
+    content: string
+}
+
+    const [messages, setMessages] = React.useState<Message[]>([])
     const [input, setInput] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(false)
     const [sessionId, setSessionId] = React.useState<string | null>(null)
@@ -17,7 +22,7 @@ export default function ChatPage() {
 
     // Load existing session on mount
     React.useEffect(() => {
-        api.get("/chat/session").then((res: any) => {
+        api.get("/chat/session").then((res: { data: { session?: { sessionId: string; messages?: Message[] } } }) => {
             if (res.data.session) {
                 setSessionId(res.data.session.sessionId)
                 if (res.data.session.messages && res.data.session.messages.length > 0) {

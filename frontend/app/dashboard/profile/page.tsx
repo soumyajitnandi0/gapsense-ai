@@ -11,10 +11,10 @@ import { useToast } from "@/components/ui/use-toast"
 import { useStore } from "@/lib/store"
 
 interface ProfileData {
-    skills: Array<{ name: string; level: string; category: string; source: string }>
-    projects: Array<{ name: string; description: string; technologies: string[]; link?: string }>
-    education: Array<{ institution: string; degree: string; field: string }>
-    experience: Array<{ company: string; role: string; description: string }>
+    skills: Array<{ name: string; level?: string; category?: string; source?: string }>
+    projects: Array<{ name: string; description?: string; technologies?: string[]; link?: string }>
+    education: Array<{ institution: string; degree?: string; field?: string }>
+    experience: Array<{ company: string; role?: string; description?: string }>
 }
 
 export default function ProfilePage() {
@@ -43,8 +43,11 @@ export default function ProfilePage() {
                 bio: "",
             })
         }
-        fetchProfile()
     }, [user])
+
+    useEffect(() => {
+        fetchProfile()
+    }, [])
 
     const fetchProfile = async () => {
         try {
@@ -53,7 +56,7 @@ export default function ProfilePage() {
                 setProfileData(res.data.profile.parsedData)
                 setProfile(res.data.profile.parsedData)
             }
-        } catch (error) {
+        } catch {
             // Profile may not exist yet
         } finally {
             setLoadingProfile(false)
@@ -254,9 +257,9 @@ export default function ProfilePage() {
 
                         <div className="flex flex-wrap gap-3 mt-4">
                             {data.skills.map((skill, idx) => (
-                                <span key={idx} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-none text-sm font-black uppercase tracking-widest border-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${getLevelColor(skill.level)}`}>
+                                <span key={idx} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-none text-sm font-black uppercase tracking-widest border-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${getLevelColor(skill.level || "")}`}>
                                     {skill.name}
-                                    <span className="text-[10px] font-black bg-white border-2 border-black px-1 py-0.5">{skill.level}</span>
+                                    <span className="text-[10px] font-black bg-white border-2 border-black px-1 py-0.5">{skill.level || "N/A"}</span>
                                 </span>
                             ))}
                         </div>

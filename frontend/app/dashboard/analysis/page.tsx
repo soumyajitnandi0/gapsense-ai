@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ReadinessScore } from "@/components/dashboard/ReadinessScore"
-import { useStore, IGap, ISubScore } from "@/lib/store"
+import { useStore, IGap, ISubScore, Role } from "@/lib/store"
 import api from "@/lib/api"
 import {
     AlertTriangle,
@@ -26,19 +26,19 @@ export default function AnalysisPage() {
     const [isRecomputing, setIsRecomputing] = useState(false)
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        fetchDashboard()
-    }, [])
-
     const fetchDashboard = async () => {
         try {
             const res = await api.get("/assessments/latest")
             setAssessment(res.data.assessment)
             setLoading(false)
-        } catch (e) {
+        } catch {
             router.push("/dashboard/onboarding")
         }
     }
+
+    useEffect(() => {
+        fetchDashboard()
+    }, [fetchDashboard])
 
     const handleRecompute = async () => {
         if (!assessment?._id) return
@@ -84,7 +84,7 @@ export default function AnalysisPage() {
                         </h1>
                     </div>
                     <p className="text-black font-black uppercase tracking-widest text-sm ml-1 bg-white border-2 border-black px-3 py-1 w-fit shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-                        Target Role: <span className="text-primary">{assessment.roleId?.name || "Target Role"}</span>
+                        Target Role: <span className="text-primary">{(assessment.roleId as Role)?.name || "Target Role"}</span>
                     </p>
                 </div>
                 <Button 
@@ -218,7 +218,7 @@ export default function AnalysisPage() {
                         {/* Vertical Timeline Guide Line */}
                         <div className="absolute left-[3.4rem] top-10 bottom-10 w-2 bg-white" />
 
-                        {roadmap?.milestones?.slice(0, 3).map((item: any, idx: number) => (
+                        {roadmap?.milestones?.slice(0, 3).map((item, idx: number) => (
                             <div key={idx} className="relative flex gap-8 group/milestone cursor-pointer hover:-translate-y-1 transition-all">
                                 {/* Timeline Node */}
                                 <div className="relative mt-2">
@@ -235,7 +235,7 @@ export default function AnalysisPage() {
                                     </h4>
                                     
                                     <div className="space-y-4">
-                                        {item.tasks.slice(0, 2).map((task: any, tIdx: number) => (
+                                        {item.tasks?.slice(0, 2).map((task: { title?: string }, tIdx: number) => (
                                           <div key={tIdx} className="flex items-start gap-3 text-sm font-bold uppercase tracking-wide text-white bg-black p-4 border-4 border-white shadow-[2px_2px_0px_rgba(255,255,255,1)]">
                                               <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 shrink-0" />
                                               <span className="leading-snug">{task.title}</span>

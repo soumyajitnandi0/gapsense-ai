@@ -42,7 +42,7 @@ export default function SignupPage() {
 
             login(data.token)
             router.push('/dashboard')
-        } catch (err) {
+        } catch {
             setError('Could not connect to server. Please try again.')
         } finally {
             setLoading(false)
@@ -84,7 +84,7 @@ export default function SignupPage() {
                         </div>
 
                         <p className="text-black font-black uppercase tracking-widest text-sm border-l-8 border-black pl-6 italic">
-                            "The roadmap provided by GapSense gave me the structure I needed to pivot my career efficiently."
+                            &ldquo;The roadmap provided by GapSense gave me the structure I needed to pivot my career efficiently.&rdquo;
                         </p>
                     </div>
                 </div>

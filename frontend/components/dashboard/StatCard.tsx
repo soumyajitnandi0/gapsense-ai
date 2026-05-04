@@ -4,12 +4,17 @@ import { LineChart, Line, ResponsiveContainer, Tooltip, YAxis } from "recharts"
 import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+interface ChartDataPoint {
+    name: string
+    value: number
+}
+
 interface StatCardProps {
     title: string
     subtitle: string
     value: string
     change: number
-    data: any[]
+    data: ChartDataPoint[]
     icon: React.ReactNode
     color: string
 }

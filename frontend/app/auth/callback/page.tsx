@@ -1,7 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
-import { useEffect, useState } from "react"
+import { Suspense, useLayoutEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Sparkles, Loader2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
@@ -12,7 +11,7 @@ function CallbackContent() {
     const { login } = useAuth()
     const [status, setStatus] = useState("Authenticating...")
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const token = searchParams.get("token")
 
         if (token) {

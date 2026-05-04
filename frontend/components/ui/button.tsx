@@ -5,21 +5,21 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-none text-sm font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
     {
         variants: {
             variant: {
                 default:
-                    "bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-pill shadow-[0_0_20px_-5px_rgba(62,156,255,0.5)]",
+                    "bg-primary text-primary-foreground shadow hover:bg-primary/90 shadow-[0_0_20px_-5px_rgba(62,156,255,0.5)]",
                 destructive:
-                    "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 rounded-pill",
+                    "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
                 outline:
-                    "border border-primary text-primary bg-transparent shadow-sm hover:bg-primary/10 rounded-pill",
+                    "border border-primary text-primary bg-transparent shadow-sm hover:bg-primary/10",
                 secondary:
-                    "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 rounded-pill",
-                ghost: "hover:bg-accent hover:text-accent-foreground rounded-pill",
+                    "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+                ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
-                glow: "bg-primary text-primary-foreground shadow-[0_0_30px_-5px_hsl(var(--primary))] hover:shadow-[0_0_40px_-5px_hsl(var(--primary))] transition-shadow duration-300 rounded-pill border border-primary/50",
+                glow: "bg-primary text-primary-foreground shadow-[0_0_30px_-5px_hsl(var(--primary))] hover:shadow-[0_0_40px_-5px_hsl(var(--primary))] transition-shadow duration-300 border border-primary/50",
             },
             size: {
                 default: "h-9 px-4 py-2",

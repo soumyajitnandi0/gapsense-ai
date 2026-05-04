@@ -38,7 +38,7 @@ interface ProgressData {
     date: string
     type: string
     description: string
-    metadata?: any
+    metadata?: Record<string, unknown>
   }>
   assessment: {
     id: string
@@ -88,7 +88,7 @@ export default function ProgressPage() {
       setProgress(res.data)
     } catch (error: any) {
       console.error('Failed to fetch progress:', error)
-      if (error.response?.status !== 404) {
+      if ((error as { response?: { status?: number } }).response?.status !== 404) {
         toast({
           title: "Error",
           description: "Failed to load progress data.",
@@ -125,7 +125,7 @@ export default function ProgressPage() {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.error || "Failed to complete task.",
+        description: (error as { response?: { data?: { error?: string } } }).response?.data?.error || "Failed to complete task.",
         variant: "destructive"
       })
     } finally {

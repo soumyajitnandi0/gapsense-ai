@@ -2,8 +2,13 @@
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
+interface ChartData {
+    name: string
+    value: number
+}
+
 interface ChartProps {
-    data: any[]
+    data: ChartData[]
 }
 
 export function MainDetailedChart({ data }: ChartProps) {

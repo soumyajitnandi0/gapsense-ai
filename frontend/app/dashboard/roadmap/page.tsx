@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useStore } from "@/lib/store"
+import { useStore, Role } from "@/lib/store"
 import api from "@/lib/api"
 import { useRouter } from "next/navigation"
-import { PlayCircle, Clock, CheckCircle2, ArrowRight, Target, Map, RefreshCw, Loader2, Sparkles } from "lucide-react"
+import { PlayCircle, Clock, CheckCircle2, Target, Map, RefreshCw, Loader2, Sparkles } from "lucide-react"
 import { PremiumCard } from "@/components/ui/PremiumCard"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -29,10 +29,10 @@ export default function RoadmapPage() {
         // Load progress to get completed tasks
         api.get("/progress").then(res => {
             if (res.data?.progress?.completedTasks) {
-                const ids = new Set<string>(res.data.progress.completedTasks.map((t: any) => t.taskId))
+                const ids = new Set<string>(res.data.progress.completedTasks.map((t: { taskId: string }) => t.taskId))
                 setCompletedTasks(ids)
             } else if (res.data?.skillProgress) {
-                const ids = new Set<string>(res.data.skillProgress.filter((t: any) => t.completed).map((t: any) => t.id))
+                const ids = new Set<string>(res.data.skillProgress.filter((t: { completed: boolean }) => t.completed).map((t: { id: string }) => t.id))
                 setCompletedTasks(ids)
             }
         }).catch(() => {})
@@ -48,7 +48,7 @@ export default function RoadmapPage() {
         try {
             await api.post('/progress/complete-task', { taskId, milestoneWeek })
             toast({ title: "Task completed!", description: "Keep up the momentum!" })
-        } catch (error: any) {
+        } catch (error: unknown) {
             // Revert on failure
             setCompletedTasks(prev => {
                 const next = new Set(prev)
@@ -56,7 +56,7 @@ export default function RoadmapPage() {
                 return next
             })
             // Silently handle 404 (progress not initialized)
-            if (error.response?.status !== 404) {
+            if ((error as { response?: { status?: number } }).response?.status !== 404) {
                 toast({ title: "Error", description: "Failed to mark task as complete.", variant: "destructive" })
             }
         } finally {
@@ -113,7 +113,12 @@ export default function RoadmapPage() {
     const projectSuggestions = roadmap.projectSuggestions || []
 
     // Calculate progress
-    const totalTasks = milestones.reduce((sum: number, m: any) => sum + (m.tasks?.length || 0), 0)
+    interface RoadmapMilestone {
+        week?: number
+        title?: string
+        tasks?: Array<{ id?: string; _id?: string; title?: string; estimatedHours?: number; description?: string; resources?: Array<{ url?: string; type?: string; title?: string }> }>
+    }
+    const totalTasks = milestones.reduce((sum: number, m: RoadmapMilestone) => sum + (m.tasks?.length || 0), 0)
     const completedCount = completedTasks.size
     const progressPercent = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
 
@@ -126,7 +131,7 @@ export default function RoadmapPage() {
                         Roadmap
                     </h1>
                     <p className="text-black/80 max-w-2xl text-[16px] leading-relaxed font-black uppercase tracking-widest mt-6">
-                        Your tailored <span className="text-black bg-primary px-1 border-2 border-black">{roadmap.duration || 60}-day</span> acceleration plan to master the <span className="text-black bg-secondary px-1 border-2 border-black">{assessment.roleId?.name || "Target Developer"}</span> role.
+                        Your tailored <span className="text-black bg-primary px-1 border-2 border-black">{roadmap.duration || 60}-day</span> acceleration plan to master the <span className="text-black bg-secondary px-1 border-2 border-black">{(assessment.roleId as Role)?.name || "Target Developer"}</span> role.
                     </p>
                 </div>
                 <div className="flex items-center gap-6">
@@ -153,13 +158,14 @@ export default function RoadmapPage() {
             {/* Timeline View */}
             <div className="pl-4 lg:pl-12">
                 <div className="relative border-l-4 border-black ml-[24px]">
-                    {milestones.map((m: any, i: number) => {
+                    {milestones.map((m: RoadmapMilestone, i: number) => {
                         const tasks = m.tasks || []
-                        const weekCompleted = tasks.every((t: any) => completedTasks.has(t.id || t._id || `task-${i}-${tasks.indexOf(t)}`))
-                        const isActive = !weekCompleted && (i === 0 || milestones.slice(0, i).every((prev: any) => 
-                            (prev.tasks || []).every((t: any) => completedTasks.has(t.id || t._id || `task-${milestones.indexOf(prev)}-${(prev.tasks || []).indexOf(t)}`))
+                        const weekCompleted = tasks.every((t: { id?: string; _id?: string }) => completedTasks.has(t.id || t._id || `task-${i}-${tasks.indexOf(t)}`))
+                        const isActive = !weekCompleted && (i === 0 || milestones.slice(0, i).every((prev: RoadmapMilestone) => 
+                            (prev.tasks || []).every((t: { id?: string; _id?: string }) => completedTasks.has(t.id || t._id || `task-${milestones.indexOf(prev)}-${(prev.tasks || []).indexOf(t)}`))
                         ))
 
+                        const weekNumber = m.week || i + 1
                         return (
                             <div key={i} className={`relative pl-12 lg:pl-20 pb-16 last:pb-0 group transition-all duration-500 ${isActive ? 'opacity-100' : weekCompleted ? 'opacity-80' : 'opacity-80 hover:opacity-100'}`}>
                                 {/* Node icon attached to the line */}
@@ -178,7 +184,7 @@ export default function RoadmapPage() {
                                     <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-10 gap-4">
                                         <div>
                                             <span className={`text-[13px] font-black uppercase tracking-widest px-4 py-2 border-2 border-black mb-4 inline-block shadow-hard ${isActive ? 'bg-white text-black' : weekCompleted ? 'bg-white text-black' : 'bg-secondary text-black'}`}>
-                                                Week {m.week}
+                                                Week {weekNumber}
                                             </span>
                                             <h3 className="text-3xl lg:text-4xl font-black uppercase tracking-tight text-black">{m.title}</h3>
                                         </div>
@@ -192,11 +198,11 @@ export default function RoadmapPage() {
                                     {/* Tasks Grid with Completion */}
                                     {tasks.length > 0 && (
                                         <div className="grid lg:grid-cols-2 gap-6">
-                                            {tasks.map((task: any, tIdx: number) => {
+                                            {tasks.map((task: { id?: string; _id?: string; title?: string; estimatedHours?: number; description?: string; resources?: Array<{ url?: string; type?: string; title?: string }> }, tIdx: number) => {
                                                 const taskId = task.id || task._id || `task-${i}-${tIdx}`
                                                 const isCompleted = completedTasks.has(taskId)
                                                 const isCompleting = completingTask === taskId
-                                                const taskTitle = task.title || task
+                                                const taskTitle = task.title || "Untitled Task"
 
                                                 return (
                                                     <div 
@@ -209,7 +215,7 @@ export default function RoadmapPage() {
                                                                     : 'bg-white'
                                                         }`}
                                                     >
-                                                        <div className="flex items-start gap-4 mb-4 cursor-pointer" onClick={() => !isCompleted && handleCompleteTask(taskId, m.week || i + 1)}>
+                                                        <div className="flex items-start gap-4 mb-4 cursor-pointer" onClick={() => !isCompleted && handleCompleteTask(taskId, weekNumber)}>
                                                             <div className={`h-8 w-8 flex items-center justify-center shrink-0 border-4 border-black bg-white transition-all ${
                                                                 isCompleted 
                                                                     ? 'bg-accent' 
@@ -246,7 +252,7 @@ export default function RoadmapPage() {
                                                         
                                                         {task.resources && task.resources.length > 0 && (
                                                             <div className="pl-12 flex flex-wrap gap-3 mt-auto pt-4 border-t-4 border-black">
-                                                                {task.resources.map((res: any, rIdx: number) => (
+                                                                {task.resources.map((res, rIdx: number) => (
                                                                     res.url ? (
                                                                         <a 
                                                                             key={rIdx} 
@@ -303,19 +309,22 @@ export default function RoadmapPage() {
                         </div>
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {projectSuggestions.map((project: any, idx: number) => (
-                            <div key={idx} className="bg-white border-4 border-black p-8 shadow-hard hover:-translate-y-2 hover:translate-x-2 hover:shadow-none transition-transform cursor-default flex flex-col">
-                                <h4 className="text-2xl font-black uppercase text-black mb-4">{project.title || project}</h4>
-                                {project.description && <p className="text-sm font-medium text-black/80 leading-relaxed mb-6">{project.description}</p>}
-                                {project.technologies && (
-                                    <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t-4 border-black">
-                                        {project.technologies.map((tech: string, tIdx: number) => (
-                                            <span key={tIdx} className="px-3 py-1.5 bg-accent border-2 border-black text-black text-xs font-black uppercase shadow-hard">{tech}</span>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {projectSuggestions.map((project: { title?: string; description?: string; technologies?: string[] } | string, idx: number) => {
+                            const projectObj = typeof project === 'string' ? { title: project } : project
+                            return (
+                                <div key={idx} className="bg-white border-4 border-black p-8 shadow-hard hover:-translate-y-2 hover:translate-x-2 hover:shadow-none transition-transform cursor-default flex flex-col">
+                                    <h4 className="text-2xl font-black uppercase text-black mb-4">{projectObj.title}</h4>
+                                    {projectObj.description && <p className="text-sm font-medium text-black/80 leading-relaxed mb-6">{projectObj.description}</p>}
+                                    {projectObj.technologies && (
+                                        <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t-4 border-black">
+                                            {projectObj.technologies.map((tech: string, tIdx: number) => (
+                                                <span key={tIdx} className="px-3 py-1.5 bg-accent border-2 border-black text-black text-xs font-black uppercase shadow-hard">{tech}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             )}

@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 const path = './app/dashboard/page.tsx';
 let content = fs.readFileSync(path, 'utf8');
 

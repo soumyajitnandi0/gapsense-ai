@@ -6,11 +6,38 @@ export interface User {
   email: string
 }
 
+export interface Skill {
+  name: string
+  level?: string
+}
+
+export interface Project {
+  name: string
+  description?: string
+  url?: string
+  technologies?: string[]
+  link?: string
+}
+
+export interface Education {
+  institution: string
+  degree?: string
+  field?: string
+  year?: string
+}
+
+export interface Experience {
+  company: string
+  role?: string
+  duration?: string
+  description?: string
+}
+
 export interface Profile {
-  skills: any[]
-  projects: any[]
-  education: any[]
-  experience: any[]
+  skills: Skill[]
+  projects: Project[]
+  education: Education[]
+  experience: Experience[]
 }
 
 export interface IGap {
@@ -29,6 +56,35 @@ export interface ISubScore {
   explanation: string
 }
 
+export interface Task {
+  id?: string
+  _id?: string
+  title?: string
+  estimatedHours?: number
+}
+
+export interface Milestone {
+  week?: number
+  title?: string
+  tasks?: Task[]
+}
+
+export interface Roadmap {
+  duration?: number
+  milestones?: Milestone[]
+  projectSuggestions?: Array<{ title?: string; description?: string; technologies?: string[] }> | string[]
+}
+
+export interface Role {
+  _id?: string
+  name?: string
+}
+
+export interface Message {
+  role: "user" | "assistant"
+  content: string
+}
+
 export interface Assessment {
   _id: string
   overallScore: number
@@ -36,9 +92,10 @@ export interface Assessment {
   gaps: IGap[]
   matchedSkills: string[]
   missingSkills: string[]
-  roadmap?: any
-  explanations?: any[]
-  roleId?: any
+  roadmap?: Roadmap
+  explanations?: string[]
+  roleId?: string | Role
+  createdAt?: string
 }
 
 interface AppState {

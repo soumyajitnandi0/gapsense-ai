@@ -82,10 +82,10 @@ export default function SettingsPage() {
                 title: "Success",
                 description: "Account information updated successfully.",
             })
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast({
                 title: "Error",
-                description: error.response?.data?.error || "Failed to update account.",
+                description: (error as { response?: { data?: { error?: string } } }).response?.data?.error || "Failed to update account.",
                 variant: "destructive"
             })
         } finally {
@@ -114,10 +114,10 @@ export default function SettingsPage() {
                 description: "Password updated successfully.",
             })
             setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast({
                 title: "Error",
-                description: error.response?.data?.error || "Failed to update password.",
+                description: (error as { response?: { data?: { error?: string } } }).response?.data?.error || "Failed to update password.",
                 variant: "destructive"
             })
         } finally {

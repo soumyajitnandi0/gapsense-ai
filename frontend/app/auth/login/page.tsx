@@ -41,7 +41,7 @@ export default function LoginPage() {
 
             login(data.token)
             router.push('/dashboard')
-        } catch (err) {
+        } catch {
             setError('Could not connect to server. Please try again.')
         } finally {
             setLoading(false)
@@ -83,7 +83,7 @@ export default function LoginPage() {
                         </div>
 
                         <p className="text-black font-black uppercase tracking-widest text-sm border-l-8 border-black pl-6 italic">
-                            "GapSense changed how I prepare for interviews. I knew exactly what I was missing and how to fix it."
+                            &ldquo;GapSense changed how I prepare for interviews. I knew exactly what I was missing and how to fix it.&rdquo;
                         </p>
                     </div>
                 </div>
@@ -194,7 +194,7 @@ export default function LoginPage() {
                         </div>
 
                         <p className="text-center text-[13px] font-black uppercase tracking-widest text-black">
-                            Don't have an account?{" "}
+                            Don&apos;t have an account?{" "}
                             <Link href="/auth/signup" className="bg-primary px-1 border-2 border-black hover:bg-primary/80 transition-colors">
                                 Sign up
                             </Link>
