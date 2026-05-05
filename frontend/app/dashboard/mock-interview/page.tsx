@@ -37,7 +37,7 @@ export default function MockInterviewPage() {
         setShowSummary(false)
         setScores([])
         try {
-            const roleId = assessment?.roleId?._id || assessment?.roleId;
+            const roleId = typeof assessment?.roleId === 'object' ? (assessment.roleId as any)?._id : assessment?.roleId;
             const res = await api.post('/chat/mock-interview/questions', { 
                 roleId: roleId,
                 difficulty: 'medium', 
