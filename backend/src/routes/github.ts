@@ -104,7 +104,7 @@ router.get(
 
       // Redirect back to frontend
       const targetPath = redirectTo || '/dashboard/settings';
-      res.redirect(`http://localhost:3000${targetPath}${targetPath.includes('?') ? '&' : '?'}github=connected`);
+      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}${targetPath}${targetPath.includes('?') ? '&' : '?'}github=connected`);
     } catch (error) {
       console.error('GitHub OAuth Error:', error);
       res.status(500).json({ error: 'GitHub authentication failed' });

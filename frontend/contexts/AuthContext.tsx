@@ -2,8 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-
-const API_BASE = 'http://localhost:5000/api'
+import { API_BASE } from '@/lib/api'
 
 interface User {
     id: string

@@ -8,8 +8,7 @@ import { Card } from "@/components/ui/card"
 import { useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useRouter } from "next/navigation"
-
-const API_BASE = 'http://localhost:5000/api'
+import { API_BASE } from "@/lib/api"
 
 export default function SignupPage() {
     const { login } = useAuth()
