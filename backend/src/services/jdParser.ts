@@ -53,28 +53,23 @@ ${jdText.substring(0, 10000)}`; // Limit to avoid token limits
     let parsed: any;
     
     if (hasGemini) {
-      const result = await geminiModel!.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      // Extract JSON from response
-      const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, text];
-      const jsonStr = jsonMatch[1]?.trim() || text.trim();
-      parsed = JSON.parse(jsonStr);
+      try {
+        const result = await geminiModel!.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, text];
+        const jsonStr = jsonMatch[1]?.trim() || text.trim();
+        parsed = JSON.parse(jsonStr);
+      } catch (geminiError) {
+        console.error('Gemini JD Parsing Error, falling back to Groq:', geminiError);
+        if (hasGroq) {
+          parsed = await parseWithGroq(prompt);
+        } else {
+          return getMockParsedJD();
+        }
+      }
     } else if (hasGroq) {
-      const response = await groq!.chat.completions.create({
-        model: groqModel,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a precise job description parser. Return only valid JSON.',
-          },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      });
-      const content = response.choices[0]?.message?.content || '{}';
-      parsed = JSON.parse(content);
+      parsed = await parseWithGroq(prompt);
     } else {
       return getMockParsedJD();
     }
@@ -102,9 +97,26 @@ ${jdText.substring(0, 10000)}`; // Limit to avoid token limits
       })),
     };
   } catch (error) {
-    console.error('JD Parsing Error:', error);
+    console.error('Final JD Parsing Error:', error);
     return getMockParsedJD();
   }
+}
+
+async function parseWithGroq(prompt: string): Promise<any> {
+  const response = await groq!.chat.completions.create({
+    model: groqModel,
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a precise job description parser. Return only valid JSON.',
+      },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.1,
+    response_format: { type: 'json_object' },
+  });
+  const content = response.choices[0]?.message?.content || '{}';
+  return JSON.parse(content);
 }
 
 function getMockParsedJD(): ParsedJD {
