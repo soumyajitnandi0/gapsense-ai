@@ -123,6 +123,12 @@ router.post(
 // Google OAuth routes
 router.get(
   '/google',
+  (req, res, next) => {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'Google OAuth is not configured on the server.' });
+    }
+    next();
+  },
   passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
@@ -131,6 +137,12 @@ router.get(
 
 router.get(
   '/google/callback',
+  (req, res, next) => {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'Google OAuth is not configured on the server.' });
+    }
+    next();
+  },
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   (req: Request, res: Response) => {
     const user = req.user as any;
