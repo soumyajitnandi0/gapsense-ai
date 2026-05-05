@@ -139,7 +139,7 @@ export default function RoadmapPage() {
                         Roadmap
                     </h1>
                     <p className="text-black/80 max-w-2xl text-[16px] leading-relaxed font-black uppercase tracking-widest mt-6">
-                        Your tailored <span className="text-black bg-primary px-1 border-2 border-black">{roadmap.duration || 60}-day</span> acceleration plan to master the <span className="text-black bg-secondary px-1 border-2 border-black">{(assessment.roleId as Role)?.name || "Target Developer"}</span> role.
+                        Your tailored <span className="text-black bg-primary px-1 border-2 border-black">{roadmap.duration || 60}-day</span> acceleration plan to master the <span className="text-black bg-secondary px-1 border-2 border-black">{typeof assessment.roleId === 'object' ? (assessment.roleId as Role)?.name : assessment.roleId || "Target Developer"}</span> role.
                     </p>
                 </div>
                 <div className="flex items-center gap-6">

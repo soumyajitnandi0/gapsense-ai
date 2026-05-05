@@ -85,7 +85,7 @@ export default function AnalysisPage() {
                         </h1>
                     </div>
                     <p className="text-black font-black uppercase tracking-widest text-sm ml-1 bg-white border-2 border-black px-3 py-1 w-fit shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-                        Target Role: <span className="text-primary">{(assessment.roleId as Role)?.name || "Target Role"}</span>
+                        Target Role: <span className="text-primary">{typeof assessment.roleId === 'object' ? (assessment.roleId as Role)?.name : assessment.roleId || "Target Role"}</span>
                     </p>
                 </div>
                 <Button 
