@@ -81,19 +81,66 @@ router.post(
       if (profile) {
         profile.resumeUrl = req.file.filename;
         profile.resumeText = parsedResume.rawText;
+
+        // Merge new skills with existing ones (keep unique by name, prefer higher level)
+        const existingSkills = profile.parsedData.skills || [];
+        const newSkills = parsedResume.skills.map(s => ({
+          name: s.name,
+          level: s.level || 'intermediate',
+          category: 'technical' as const,
+          source: 'resume' as const,
+        }));
+
+        // Create a map of existing skills by lowercase name
+        const skillMap = new Map(existingSkills.map(s => [s.name.toLowerCase(), s]));
+
+        // Add new skills, merging with existing if name matches
+        for (const newSkill of newSkills) {
+          const key = newSkill.name.toLowerCase();
+          const existing = skillMap.get(key);
+          if (existing) {
+            // Keep higher level: advanced > intermediate > beginner
+            const levels = { beginner: 1, intermediate: 2, advanced: 3 };
+            if (levels[newSkill.level as keyof typeof levels] > levels[existing.level as keyof typeof levels]) {
+              existing.level = newSkill.level;
+            }
+          } else {
+            skillMap.set(key, newSkill);
+          }
+        }
+
+        // Merge projects (unique by name)
+        const existingProjects = profile.parsedData.projects || [];
+        const projectMap = new Map(existingProjects.map(p => [p.name.toLowerCase(), p]));
+        for (const newProject of parsedResume.projects) {
+          if (!projectMap.has(newProject.name.toLowerCase())) {
+            projectMap.set(newProject.name.toLowerCase(), {
+              name: newProject.name,
+              description: newProject.description,
+              technologies: newProject.technologies,
+              link: newProject.link,
+            });
+          }
+        }
+
+        // Merge experience (unique by company+role combination)
+        const existingExp = profile.parsedData.experience || [];
+        const expMap = new Map(existingExp.map(e => [`${e.company.toLowerCase()}|${e.role.toLowerCase()}`, e]));
+        for (const newExp of parsedResume.experience) {
+          const key = `${newExp.company.toLowerCase()}|${newExp.role.toLowerCase()}`;
+          if (!expMap.has(key)) {
+            expMap.set(key, {
+              company: newExp.company,
+              role: newExp.role,
+              description: newExp.description || '',
+              current: false,
+            });
+          }
+        }
+
         profile.parsedData = {
-          skills: parsedResume.skills.map(s => ({
-            name: s.name,
-            level: s.level || 'intermediate',
-            category: 'technical',
-            source: 'resume',
-          })),
-          projects: parsedResume.projects.map(p => ({
-            name: p.name,
-            description: p.description,
-            technologies: p.technologies,
-            link: p.link,
-          })),
+          skills: Array.from(skillMap.values()),
+          projects: Array.from(projectMap.values()),
           education: parsedResume.education.map(e => ({
             institution: e.institution,
             degree: e.degree,
@@ -101,12 +148,7 @@ router.post(
             endDate: e.graduationYear ? new Date(e.graduationYear) : undefined,
             current: false,
           })),
-          experience: parsedResume.experience.map(e => ({
-            company: e.company,
-            role: e.role,
-            description: e.description || '',
-            current: false,
-          })),
+          experience: Array.from(expMap.values()),
         };
         await profile.save();
       } else {

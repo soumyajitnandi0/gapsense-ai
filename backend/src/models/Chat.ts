@@ -5,7 +5,7 @@ export interface IMessage {
   content: string;
   timestamp: Date;
   metadata?: {
-    type?: 'resume_feedback' | 'interview_question' | 'roadmap_suggestion' | 'skill_advice' | 'general';
+    type?: 'resume_feedback' | 'interview_question' | 'roadmap_suggestion' | 'skill_advice' | 'general' | 'tutorial';
     score?: number;
     resources?: string[];
   };
@@ -34,7 +34,7 @@ const MessageSchema: Schema = new Schema({
   content: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
   metadata: {
-    type: { type: String, enum: ['resume_feedback', 'interview_question', 'roadmap_suggestion', 'skill_advice', 'general'] },
+    type: { type: String, enum: ['resume_feedback', 'interview_question', 'roadmap_suggestion', 'skill_advice', 'general', 'tutorial'] },
     score: { type: Number },
     resources: [{ type: String }],
   },

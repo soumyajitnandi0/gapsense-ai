@@ -23,9 +23,12 @@ router.get(
       return;
     }
 
+    const redirectTo = req.query.redirectTo as string || '/dashboard/settings';
+
     const state = Buffer.from(JSON.stringify({
       userId: (req.user as any)._id.toString(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      redirectTo
     })).toString('base64');
 
     const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
@@ -55,9 +58,9 @@ router.get(
     }
 
     try {
-      // Decode state to get userId
+      // Decode state to get userId and redirectTo
       const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
-      const { userId } = stateData;
+      const { userId, redirectTo } = stateData;
 
       // Exchange code for access token
       const tokenResponse = await axios.post(
@@ -100,7 +103,8 @@ router.get(
       });
 
       // Redirect back to frontend
-      res.redirect('http://localhost:3000/dashboard/settings?github=connected');
+      const targetPath = redirectTo || '/dashboard/settings';
+      res.redirect(`http://localhost:3000${targetPath}${targetPath.includes('?') ? '&' : '?'}github=connected`);
     } catch (error) {
       console.error('GitHub OAuth Error:', error);
       res.status(500).json({ error: 'GitHub authentication failed' });

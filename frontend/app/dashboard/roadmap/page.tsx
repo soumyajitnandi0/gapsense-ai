@@ -18,16 +18,24 @@ export default function RoadmapPage() {
     const [regenerating, setRegenerating] = useState(false)
 
     useEffect(() => {
-        if (!assessment) {
-            api.get("/assessments/latest")
-                .then(res => setAssessment(res.data.assessment))
-                .catch(() => router.push("/dashboard/onboarding"))
-                .finally(() => setLoading(false))
-        } else {
+        const fetchAssessment = async () => {
+            if (!assessment) {
+                try {
+                    const res = await api.get("/assessments/latest")
+                    setAssessment(res.data.assessment)
+                } catch (err) {
+                    router.push("/dashboard/onboarding")
+                    return
+                }
+            }
             setLoading(false)
         }
-        // Load progress to get completed tasks
-        api.get("/progress").then(res => {
+
+        fetchAssessment()
+
+        // Load progress to get completed tasks for THIS assessment
+        const assessmentId = assessment?._id;
+        api.get(`/progress${assessmentId ? `?assessmentId=${assessmentId}` : ''}`).then(res => {
             if (res.data?.progress?.completedTasks) {
                 const ids = new Set<string>(res.data.progress.completedTasks.map((t: { taskId: string }) => t.taskId))
                 setCompletedTasks(ids)

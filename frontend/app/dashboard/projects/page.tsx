@@ -184,7 +184,8 @@ export default function ProjectsPage() {
     const connectGithub = async () => {
         setConnecting(true)
         try {
-            const res = await api.get('/github/connect')
+            const currentPath = window.location.pathname
+            const res = await api.get(`/github/connect?redirectTo=${currentPath}`)
             if (res.data.url) {
                 window.location.href = res.data.url
             }

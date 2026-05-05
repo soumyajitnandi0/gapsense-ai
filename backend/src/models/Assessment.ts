@@ -58,6 +58,16 @@ export interface IAssessment extends Document {
     projectSuggestions: IProjectSuggestion[];
     targetCompletionDate: Date;
   };
+  profileSnapshot?: {
+    skills: any[];
+    projects: any[];
+    experience: any[];
+    education: any[];
+  };
+  resumeData?: {
+    text?: string;
+    url?: string;
+  };
   explanations: {
     factor: string;
     impact: string;
@@ -149,6 +159,16 @@ const AssessmentSchema: Schema = new Schema(
       milestones: [RoadmapMilestoneSchema],
       projectSuggestions: [ProjectSuggestionSchema],
       targetCompletionDate: { type: Date },
+    },
+    profileSnapshot: {
+      skills: [{ type: Schema.Types.Mixed }],
+      projects: [{ type: Schema.Types.Mixed }],
+      experience: [{ type: Schema.Types.Mixed }],
+      education: [{ type: Schema.Types.Mixed }],
+    },
+    resumeData: {
+      text: { type: String },
+      url: { type: String },
     },
     explanations: [{
       factor: { type: String, required: true },

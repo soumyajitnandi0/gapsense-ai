@@ -19,9 +19,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/contexts/AuthContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getMD5 } from "@/lib/utils"
 
 export function Navbar() {
+    const { user, logout } = useAuth()
     const [isOpen, setIsOpen] = React.useState(false)
     const pathname = usePathname()
     const isDashboard = pathname?.startsWith("/dashboard")
@@ -75,18 +78,60 @@ export function Navbar() {
             {/* Right Actions */}
             <div className="hidden lg:flex items-center gap-4">
                 {!isDashboard && (
-                    <Link href="https://github.com/soumyajitnandi0/gapsense-ai" target="_blank" className="text-black bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all px-4 py-2 flex items-center gap-2 text-[13px] font-black uppercase tracking-widest">
+                    <Link href="https://github.com/soumyajitnandi0/gapsense-ai" target="_blank" className="text-black bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all px-4 py-2 flex items-center gap-2 text-[13px] font-black uppercase tracking-widest mr-2">
                         <Github className="h-4 w-4" />
                         Star on GitHub
                     </Link>
                 )}
 
-                {isDashboard ? (
-                    <Link href="/dashboard">
-                        <Button variant="default" className="bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none rounded-none px-6 font-black uppercase tracking-widest text-[13px] h-12 transition-all">
-                            Go to Dashboard
-                        </Button>
-                    </Link>
+                {user ? (
+                    <div className="flex items-center gap-4">
+                        {!isDashboard && (
+                            <Link href="/dashboard">
+                                <Button variant="default" className="bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none rounded-none px-6 font-black uppercase tracking-widest text-[13px] h-12 transition-all">
+                                    Dashboard
+                                </Button>
+                            </Link>
+                        )}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="relative h-12 w-12 rounded-none p-0 border-4 border-black shadow-hard hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+                                    <Avatar className="h-full w-full rounded-none">
+                                        <AvatarImage src={user.picture || `https://www.gravatar.com/avatar/${getMD5(user.email)}?s=128&d=mp`} alt={user.name} />
+                                        <AvatarFallback className="rounded-none bg-primary text-black font-black">
+                                            {user.name?.charAt(0)}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56 rounded-none border-4 border-black bg-white shadow-hard p-2" align="end" forceMount>
+                                <DropdownMenuLabel className="font-normal p-2">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-black uppercase leading-none">{user.name}</p>
+                                        <p className="text-[10px] font-bold text-black/60 uppercase leading-none">{user.email}</p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-black/10 h-0.5" />
+                                <DropdownMenuItem asChild>
+                                    <Link href="/dashboard/profile" className="cursor-pointer font-black uppercase text-[11px] p-2 hover:bg-primary transition-colors flex items-center gap-2">
+                                        <User className="h-4 w-4" /> Profile
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link href="/dashboard/settings" className="cursor-pointer font-black uppercase text-[11px] p-2 hover:bg-primary transition-colors flex items-center gap-2">
+                                        <Settings className="h-4 w-4" /> Settings
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-black/10 h-0.5" />
+                                <DropdownMenuItem 
+                                    onClick={() => logout()}
+                                    className="cursor-pointer font-black uppercase text-[11px] p-2 hover:bg-red-400 transition-colors flex items-center gap-2 text-red-600"
+                                >
+                                    <LogOut className="h-4 w-4" /> Log out
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 ) : (
                     <Link href="/auth/signup">
                         <Button variant="default" className="bg-black text-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none rounded-none px-6 font-black uppercase tracking-widest text-[13px] h-12 transition-all">

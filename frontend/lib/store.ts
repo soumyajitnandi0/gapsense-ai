@@ -93,6 +93,16 @@ export interface Assessment {
   matchedSkills: string[]
   missingSkills: string[]
   roadmap?: Roadmap
+  profileSnapshot?: {
+    skills: Skill[]
+    projects: Project[]
+    experience: Experience[]
+    education: Education[]
+  }
+  resumeData?: {
+    text?: string
+    url?: string
+  }
   explanations?: string[]
   roleId?: string | Role
   createdAt?: string
@@ -102,16 +112,20 @@ interface AppState {
   user: User | null
   profile: Profile | null
   assessment: Assessment | null
+  assessments: Assessment[]
   setUser: (u: User) => void
   setProfile: (p: Profile) => void
   setAssessment: (a: Assessment) => void
+  setAssessments: (as: Assessment[]) => void
 }
 
 export const useStore = create<AppState>()((set) => ({
   user: null,
   profile: null,
   assessment: null,
+  assessments: [],
   setUser: (user) => set({ user }),
   setProfile: (profile) => set({ profile }),
-  setAssessment: (assessment) => set({ assessment })
+  setAssessment: (assessment) => set({ assessment }),
+  setAssessments: (assessments) => set({ assessments })
 }))

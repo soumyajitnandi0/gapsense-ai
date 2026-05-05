@@ -15,7 +15,7 @@ export interface ChatContext {
 
 export interface CoachResponse {
   message: string;
-  type: 'general' | 'resume_feedback' | 'interview_question' | 'roadmap_suggestion' | 'skill_advice';
+  type: 'general' | 'resume_feedback' | 'interview_question' | 'roadmap_suggestion' | 'skill_advice' | 'tutorial';
   resources?: string[];
   actionItems?: string[];
   score?: number;
@@ -383,7 +383,8 @@ function determineResponseType(userMessage: string, response: string): CoachResp
   if (userLower.includes('interview') || userLower.includes('question')) return 'interview_question';
   if (userLower.includes('roadmap') || userLower.includes('plan') || userLower.includes('learn')) return 'roadmap_suggestion';
   if (userLower.includes('skill') || userLower.includes('technology')) return 'skill_advice';
-  
+  if (responseLower.includes('tutorial') || responseLower.includes('guide') || responseLower.includes('how to')) return 'tutorial';
+
   return 'general';
 }
 

@@ -14,8 +14,14 @@ router.get(
   authenticate,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = (req.user as any)._id;
+    const { assessmentId } = req.query;
     
-    const progress = await Progress.findOne({ userId })
+    const query: any = { userId };
+    if (assessmentId) {
+      query.assessmentId = assessmentId;
+    }
+
+    const progress = await Progress.findOne(query)
       .sort({ createdAt: -1 })
       .populate('assessmentId');
 

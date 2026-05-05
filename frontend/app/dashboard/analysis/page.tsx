@@ -28,7 +28,8 @@ export default function AnalysisPage() {
 
     const fetchDashboard = async () => {
         try {
-            const res = await api.get("/assessments/latest")
+            const assessmentId = assessment?._id || 'latest'
+            const res = await api.get(`/assessments/${assessmentId}`)
             setAssessment(res.data.assessment)
             setLoading(false)
         } catch {
@@ -38,7 +39,7 @@ export default function AnalysisPage() {
 
     useEffect(() => {
         fetchDashboard()
-    }, [fetchDashboard])
+    }, [assessment?._id])
 
     const handleRecompute = async () => {
         if (!assessment?._id) return

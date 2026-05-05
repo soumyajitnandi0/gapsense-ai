@@ -29,12 +29,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('lastActivity')
         setUser(null)
         router.push('/auth/login')
     }
 
+    const updateActivity = () => {
+        localStorage.setItem('lastActivity', Date.now().toString())
+    }
+
+    const checkInactivity = () => {
+        const lastActivity = localStorage.getItem('lastActivity')
+        if (lastActivity) {
+            const thirtyDays = 30 * 24 * 60 * 60 * 1000
+            if (Date.now() - Number(lastActivity) > thirtyDays) {
+                logout()
+                return true
+            }
+        }
+        updateActivity()
+        return false
+    }
+
     const fetchUser = async (token: string) => {
         try {
+            // Check inactivity before fetching
+            if (checkInactivity()) return
+
             const response = await fetch(`${API_BASE}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -42,16 +63,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
             if (response.ok) {
                 const data = await response.json()
-                // Backend returns { user: { id, name, email, picture, authProvider, ... } }
                 setUser(data.user)
+                updateActivity() // Refresh activity on successful fetch
             } else {
-                // Token is invalid/expired — clear it silently without redirect
                 localStorage.removeItem('token')
+                localStorage.removeItem('lastActivity')
                 setUser(null)
             }
         } catch (error) {
             console.error("Failed to fetch user", error)
-            // Network error — clear token silently
             localStorage.removeItem('token')
             setUser(null)
         } finally {
@@ -66,10 +86,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
             setLoading(false)
         }
+
+        // Add event listeners to update activity on user interaction
+        const handleInteraction = () => updateActivity()
+        window.addEventListener('mousedown', handleInteraction)
+        window.addEventListener('keydown', handleInteraction)
+
+        return () => {
+            window.removeEventListener('mousedown', handleInteraction)
+            window.removeEventListener('keydown', handleInteraction)
+        }
     }, [])
 
     const login = (token: string) => {
         localStorage.setItem('token', token)
+        updateActivity()
         fetchUser(token)
     }
 

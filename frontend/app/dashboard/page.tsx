@@ -7,7 +7,7 @@ import api from "@/lib/api"
 import { useStore, Milestone, Role } from "@/lib/store"
 import { useAuth } from "@/contexts/AuthContext"
 import { PremiumCard } from "@/components/ui/PremiumCard"
-import { cn } from "@/lib/utils"
+import { cn, getHighResProfilePicture, getMD5 } from "@/lib/utils"
 
 export default function DashboardPage() {
     const { user } = useAuth()
@@ -23,6 +23,9 @@ interface Task {
 
 interface ProgressData {
     percentage: number
+    streakDays?: number
+    completedTasksCount?: number
+    totalTasks?: number
 }
 
     const [progressData, setProgressData] = useState<ProgressData | null>(null)
@@ -30,13 +33,17 @@ interface ProgressData {
     const [currentMonthDate, setCurrentMonthDate] = useState(new Date())
 
     useEffect(() => {
+        const assessmentId = assessment?._id || 'latest';
+        
         Promise.all([
-            api.get("/assessments/latest").catch(() => null),
-            api.get("/progress").catch(() => null)
+            api.get(`/assessments/${assessmentId}`).catch(() => null),
+            api.get(`/progress${assessment?._id ? `?assessmentId=${assessment._id}` : ''}`).catch(() => null)
         ]).then(([resA, resP]) => {
             let currentAssessment = assessment;
-            if (resA?.data?.assessment) {
+            if (resA?.data?.assessment && assessmentId === 'latest') {
                 setAssessment(resA.data.assessment)
+                currentAssessment = resA.data.assessment;
+            } else if (resA?.data?.assessment) {
                 currentAssessment = resA.data.assessment;
             }
             
@@ -99,7 +106,9 @@ interface ProgressData {
 
 
 
-    const completedTasksCount = localTasks.filter((t: Task) => t.completed).length
+    const completedTasks = localTasks.filter((t: Task) => t.completed)
+    const completedTasksCount = completedTasks.length
+    const totalHoursInvested = completedTasks.reduce((sum, t) => sum + (t.estimatedHours || 0), 0)
     const progressPercent = localTasks.length > 0 ? Math.round((completedTasksCount / localTasks.length) * 100) : 0
 
     // Calendar Data Generation
@@ -197,10 +206,11 @@ interface ProgressData {
                 
                 {/* LEFT COLUMN: Profile & Details */}
                 <div className="lg:col-span-3 flex flex-col gap-10">
-                    <PremiumCard padding="none" className="h-[560px] overflow-hidden group relative rounded-none border-4 border-black shadow-hard-lg">
+                    <PremiumCard padding="none" className="h-[560px] overflow-hidden group relative rounded-none border-4 border-black shadow-hard-lg bg-zinc-900">
                         <img 
-                            src={user?.picture || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000"} 
-                            className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-500"
+                            src={user?.picture || `https://www.gravatar.com/avatar/${user?.email ? getMD5(user.email) : '000'}?s=512&d=mp`} 
+                            className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-500 [image-rendering:auto] antialiased"
+                            loading="eager"
                         />
                         <div className="absolute inset-0 border-[16px] border-black pointer-events-none z-10" />
                         <div className="absolute bottom-8 left-8 right-8 flex flex-col gap-4 z-20">
@@ -208,61 +218,144 @@ interface ProgressData {
                                 <h3 className="text-black text-3xl font-black uppercase tracking-tight mb-1 leading-none">{user?.name || "User"}</h3>
                                 <p className="text-black/60 text-sm font-black uppercase">{(assessment?.roleId as Role)?.name || "Target Role"}</p>
                             </div>
-                            <div className="px-4 py-2 bg-primary border-4 border-black text-black font-black text-xs uppercase tracking-widest w-fit shadow-hard">
-                                $1,200 Credits
-                            </div>
                         </div>
                     </PremiumCard>
 
                     <div className="flex flex-col gap-4">
-                        <SidebarItem label="Preparation Status" expanded icon={<Monitor className="h-5 w-5" />} subLabel={(assessment?.roleId as Role)?.name} subValue={`Level ${Math.floor((assessment?.overallScore || 0) / 10)}`} />
-                        <SidebarItem label="Skill Roadmap" />
-                        <SidebarItem label="Interview Analytics" />
-                        <SidebarItem label="Resource Library" />
+                        <SidebarItem 
+                            label="Preparation Status" 
+                            expanded 
+                            icon={<Monitor className="h-5 w-5" />} 
+                            subLabel={(assessment?.roleId as Role)?.name || "Target Role"} 
+                            subValue={`Level ${Math.floor((assessment?.overallScore || 0) / 10)}`}
+                            href="/dashboard/roadmap"
+                        />
+                        <SidebarItem 
+                            label="Skill Roadmap" 
+                            href="/dashboard/roadmap"
+                            subLabel={`${assessment?.roadmap?.milestones?.length || 0} Milestones`}
+                            subValue="View full path"
+                        />
+                        <SidebarItem 
+                            label="Interview Analytics" 
+                            href="/dashboard/analysis"
+                            subLabel={`${assessment?.gaps?.length || 0} Critical Gaps`}
+                            subValue="View deep dive"
+                        />
+                        <SidebarItem 
+                            label="Resource Library"
+                        >
+                            <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                {milestones.flatMap((m: Milestone) => 
+                                    (m.tasks || []).flatMap((t: any) => 
+                                        (t.resources || []).map((res: any) => ({
+                                            title: res.title || t.title,
+                                            label: res.type || 'Link',
+                                            url: res.url
+                                        }))
+                                    )
+                                ).map((res: any, idx: number) => (
+                                    <a key={idx} href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-white border-2 border-black hover:bg-primary transition-colors group/link">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black uppercase text-black/40">{res.label}</span>
+                                            <span className="text-xs font-black uppercase truncate max-w-[180px]">{res.title}</span>
+                                        </div>
+                                        <ArrowUpRight className="h-4 w-4 opacity-0 group-hover/link:opacity-100 transition-all" />
+                                    </a>
+                                ))}
+                                {milestones.length === 0 && (
+                                    <p className="text-[10px] font-black uppercase text-black/40 text-center py-4">No resources yet</p>
+                                )}
+                            </div>
+                        </SidebarItem>
                     </div>
                 </div>
 
                 {/* MIDDLE COLUMN: Charts & Calendar */}
                 <div className="lg:col-span-6 flex flex-col gap-10">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        {/* Progress Bar Chart */}
-                        <PremiumCard className="h-[380px] flex flex-col justify-between relative shadow-hard-lg border-4 border-black rounded-none">
-                            <Link href="/dashboard/roadmap" className="absolute top-6 right-6 h-12 w-12 flex items-center justify-center bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                        {/* Learning Momentum Card */}
+                        <PremiumCard className="h-[420px] flex flex-col justify-between relative shadow-hard-lg border-4 border-black rounded-none overflow-hidden group">
+                            {/* Accent Background Pattern */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 -rotate-12 translate-x-12 -translate-y-12 pointer-events-none" />
+                            
+                            <Link href="/dashboard/roadmap" className="absolute top-6 right-6 h-12 w-12 flex items-center justify-center bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all z-20">
                                 <ArrowUpRight className="h-6 w-6 font-black" />
                             </Link>
-                            <div>
-                                <h3 className="text-2xl font-black uppercase tracking-tight px-1 bg-primary w-fit border-2 border-black">Progress</h3>
-                                <div className="flex items-baseline mt-4 px-1">
-                                    <span className="text-6xl font-black font-mono tracking-tighter">{(completedTasksCount > 0 ? completedTasksCount * 1.5 : 0).toFixed(1)} h</span>
-                                    <span className="text-[11px] font-black text-foreground ml-5 uppercase tracking-[0.1em] leading-tight text-left border-b-2 border-black">Learning<br/>Week</span>
+
+                            <div className="relative z-10">
+                                <h3 className="text-2xl font-black uppercase tracking-tight px-2 bg-primary w-fit border-2 border-black mb-6">Momentum</h3>
+                                
+                                <div className="flex items-start gap-8">
+                                    <div className="flex flex-col">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-6xl font-black font-mono tracking-tighter leading-none">
+                                                {totalHoursInvested.toFixed(1)}
+                                            </span>
+                                            <span className="text-3xl font-black font-mono tracking-tighter">h</span>
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-60">Time Invested</span>
+                                    </div>
+
+                                    <div className="h-16 w-[2px] bg-black/10 mt-2" />
+
+                                    <div className="flex flex-col">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-5xl font-black font-mono tracking-tighter leading-none text-accent">
+                                                {progressData?.streakDays || 0}
+                                            </span>
+                                            <span className="text-xl font-black font-mono tracking-tighter">D</span>
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-60">Daily Streak</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div className="flex items-end gap-3 justify-between mt-12 h-40 px-2 relative border-b-4 border-black pb-2">
+                            {/* Insight Section */}
+                            <div className="mt-8 bg-black text-white p-3 border-2 border-black shadow-hard-sm relative z-10">
+                                <p className="text-[10px] font-black uppercase tracking-widest leading-tight">
+                                    {progressData?.streakDays && progressData.streakDays > 0 
+                                        ? `You're on a ${progressData.streakDays} day fire! Don't stop now.` 
+                                        : "Start your first task today to build momentum."}
+                                </p>
+                            </div>
+
+                            {/* Weekly Distribution Chart */}
+                            <div className="flex items-end gap-2 justify-between mt-8 h-32 px-1 relative">
                                 {[0, 1, 2, 3, 4, 5, 6].map((dayOffset) => {
                                     const todayIdx = new Date().getDay();
                                     const labels = ['S','M','T','W','T','F','S'];
                                     
                                     let height = 0;
                                     if (dayOffset < todayIdx) {
-                                        height = Math.min(100, Math.max(20, (completedTasksCount * 4) + (dayOffset * 8)));
+                                        // Mock some historical data based on total completion
+                                        height = Math.min(100, Math.max(15, (completedTasksCount * 3) + (dayOffset * 5)));
                                     } else if (dayOffset === todayIdx) {
-                                        height = Math.min(100, Math.max(20, completedTasksCount * 8));
+                                        // Current day completion
+                                        height = Math.min(100, Math.max(15, (completedTasksCount % 5) * 20 + 20));
                                     } else {
-                                        height = 10;
+                                        height = 8;
                                     }
                                     
+                                    const isToday = dayOffset === todayIdx;
+                                    
                                     return (
-                                        <div key={dayOffset} className="flex flex-col items-center flex-1 gap-2 relative z-10">
-                                            <div className="w-8 h-32 bg-white border-2 border-black relative overflow-hidden shadow-hard flex justify-end flex-col">
+                                        <div key={dayOffset} className="flex flex-col items-center flex-1 gap-2 group/bar">
+                                            <div className={cn(
+                                                "w-full bg-white border-2 border-black relative overflow-hidden transition-all duration-300",
+                                                isToday ? "h-28 shadow-hard" : "h-24 hover:h-28"
+                                            )}>
                                                 <div 
-                                                    className={cn("w-full transition-all duration-[1.5s] ease-out border-t-2 border-black", dayOffset === todayIdx ? "bg-accent" : "bg-black")}
+                                                    className={cn(
+                                                        "absolute bottom-0 left-0 right-0 transition-all duration-[1s] ease-out border-t-2 border-black", 
+                                                        isToday ? "bg-accent" : "bg-black"
+                                                    )}
                                                     style={{ height: `${height}%` }}
                                                 />
                                             </div>
                                             <span className={cn(
-                                                "text-[13px] font-black uppercase",
-                                                dayOffset === todayIdx ? "text-accent bg-black px-1" : "text-black"
+                                                "text-[11px] font-black uppercase transition-colors",
+                                                isToday ? "text-accent bg-black px-1" : "text-black/40 group-hover/bar:text-black"
                                             )}>
                                                 {labels[dayOffset]}
                                             </span>
@@ -355,7 +448,7 @@ interface ProgressData {
                 </div>
 
                 {/* RIGHT COLUMN: Tasks & Goals */}
-                <div className="lg:col-span-3 flex flex-col h-full bg-white border-4 border-black shadow-hard-lg rounded-none overflow-hidden min-h-[900px]">
+                <div className="lg:col-span-3 flex flex-col bg-white border-4 border-black shadow-hard-lg rounded-none overflow-hidden h-full max-h-[1060px]">
                     <div className="p-8 pb-8 border-b-4 border-black bg-secondary">
                         <div className="flex justify-between items-start mb-8">
                             <h3 className="text-4xl font-black uppercase tracking-tight bg-white border-2 border-black px-2 shadow-hard">Tasks</h3>
@@ -363,9 +456,8 @@ interface ProgressData {
                         </div>
                     </div>
 
-                    <div className="m-0 flex-grow p-8 bg-background flex flex-col relative">
-                        
-                        <div className="space-y-6 overflow-y-auto custom-scrollbar pr-4 relative z-10 h-[700px]">
+                    <div className="m-0 flex-1 p-8 bg-background flex flex-col overflow-hidden relative">
+                        <div className="space-y-6 overflow-y-auto custom-scrollbar pr-4 relative z-10 flex-1 pb-10">
                              {localTasks.length > 0 ? localTasks.map((task: Task, i: number) => {
                                  const isDone = task.completed;
                                  const isDoing = !isDone && (i === 0 || localTasks[i-1].completed);
@@ -422,27 +514,46 @@ interface SidebarItemProps {
     subLabel?: string
     subValue?: string
     expanded?: boolean
+    href?: string
+    children?: React.ReactNode
 }
 
-function SidebarItem({ label, icon, subLabel, subValue, expanded = false }: SidebarItemProps) {
+function SidebarItem({ label, icon, subLabel, subValue, expanded: initialExpanded = false, href, children }: SidebarItemProps) {
+    const [isExpanded, setIsExpanded] = useState(initialExpanded)
+
     return (
-        <div className="w-full flex flex-col group cursor-pointer mb-4">
-            <div className="flex justify-between items-center py-4 px-6 bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all">
+        <div className="w-full flex flex-col group mb-4">
+            <div 
+                className="flex justify-between items-center py-4 px-6 bg-white border-4 border-black shadow-hard hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all cursor-pointer select-none"
+                onClick={() => href && !children ? window.location.href = href : setIsExpanded(!isExpanded)}
+            >
                 <span className="text-[15px] font-black uppercase tracking-widest text-black">{label}</span>
-                <ChevronDown className={cn("h-6 w-6 text-black transition-transform", expanded && "rotate-180")} />
+                <ChevronDown 
+                    className={cn("h-6 w-6 text-black transition-transform", isExpanded && "rotate-180")} 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                    }}
+                />
             </div>
-            {expanded && (
-                <div className="mt-4 mx-2 p-6 bg-secondary border-4 border-black shadow-hard flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 bg-black border-2 border-black flex items-center justify-center text-white">
-                             {icon}
-                        </div>
-                        <div>
-                            <p className="text-sm font-black uppercase">{subLabel}</p>
-                            <p className="text-xs text-black font-black">{subValue}</p>
-                        </div>
-                    </div>
-                    <MoreVertical className="h-6 w-6 text-black" />
+            {isExpanded && (
+                <div className="mt-4 mx-2 flex flex-col gap-3">
+                    {children ? children : (
+                        <Link href={href || "#"}>
+                            <div className="p-6 bg-secondary border-4 border-black shadow-hard flex justify-between items-center hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all cursor-pointer">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-12 w-12 bg-black border-2 border-black flex items-center justify-center text-white">
+                                         {icon || <Monitor className="h-5 w-5" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-black uppercase">{subLabel || "Details Available"}</p>
+                                        <p className="text-xs text-black font-black">{subValue || "Click to view more"}</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight className="h-6 w-6 text-black" />
+                            </div>
+                        </Link>
+                    )}
                 </div>
             )}
         </div>

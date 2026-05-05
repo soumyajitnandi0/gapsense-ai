@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress"
 import { PremiumCard } from "@/components/ui/PremiumCard"
 import api from "@/lib/api"
 import { useToast } from "@/components/ui/use-toast"
+import { useStore } from "@/lib/store"
 
 interface ProgressData {
   progress: {
@@ -71,6 +72,7 @@ interface StatsData {
 
 export default function ProgressPage() {
   const { toast } = useToast()
+  const { assessment } = useStore()
   const [loading, setLoading] = useState(true)
   const [progress, setProgress] = useState<ProgressData | null>(null)
   const [stats, setStats] = useState<StatsData | null>(null)
@@ -80,11 +82,11 @@ export default function ProgressPage() {
   useEffect(() => {
     fetchProgress()
     fetchStats()
-  }, [])
+  }, [assessment?._id])
 
   const fetchProgress = async () => {
     try {
-      const res = await api.get('/progress')
+      const res = await api.get(`/progress${assessment?._id ? `?assessmentId=${assessment._id}` : ''}`)
       setProgress(res.data)
     } catch (error: any) {
       console.error('Failed to fetch progress:', error)
@@ -102,7 +104,7 @@ export default function ProgressPage() {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get('/progress/stats')
+      const res = await api.get(`/progress/stats${assessment?._id ? `?assessmentId=${assessment._id}` : ''}`)
       setStats(res.data)
     } catch (error) {
       console.error('Failed to fetch stats:', error)
@@ -135,30 +137,43 @@ export default function ProgressPage() {
 
   if (loading) {
     return (
-      <div className="w-full h-[60vh] flex items-center justify-center">
-        <div className="h-10 w-10 rounded-full border-4 border-black/10 border-t-primary animate-spin" />
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-6">
+        <div className="h-20 w-20 border-8 border-black border-t-primary animate-spin shadow-hard" />
+        <p className="font-black uppercase tracking-[0.3em] text-black animate-pulse">Synchronizing Data...</p>
       </div>
     )
   }
 
   if (!progress) {
     return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
-        <div className="h-24 w-24 bg-primary/20 rounded-full flex items-center justify-center shadow-sm mb-6">
-          <AlertCircle className="h-10 w-10 text-primary" />
-        </div>
-        <h2 className="text-3xl font-heading font-medium text-[#111] mb-3">No Progress Data</h2>
-        <p className="text-[#2B2D2B]/60 max-w-md mb-8 text-[16px]">
-          You haven&apos;t completed onboarding yet. Start your journey by completing the onboarding process.
-        </p>
-        <button onClick={() => window.location.href = '/dashboard/onboarding'} className="px-8 py-3 bg-[#111] text-white rounded-full font-semibold hover:bg-black transition shadow-lg flex items-center gap-2">
-          Start Onboarding <ArrowRight className="h-4 w-4" />
-        </button>
+      <div className="w-full min-h-[70vh] flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500">
+        <PremiumCard className="max-w-xl w-full p-12 bg-white border-8 border-black shadow-[20px_20px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-8">
+            <div className="h-24 w-24 bg-accent border-4 border-black flex items-center justify-center shadow-hard rotate-3">
+                <AlertCircle className="h-12 w-12 text-black" strokeWidth={3} />
+            </div>
+            
+            <div className="space-y-4">
+                <h2 className="text-5xl font-black uppercase tracking-tighter text-black leading-none">
+                    No Progress <br/> Data Found
+                </h2>
+                <div className="h-2 w-full bg-black mx-auto" />
+                <p className="text-[16px] font-black uppercase tracking-widest text-black/60 leading-relaxed pt-2">
+                    Your career engine is idle. To generate a roadmap and track your momentum, you must complete the onboarding.
+                </p>
+            </div>
+
+            <button 
+                onClick={() => window.location.href = '/dashboard/onboarding'} 
+                className="w-full py-6 bg-primary text-black border-4 border-black shadow-hard rounded-none text-xl font-black uppercase tracking-widest hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-4 group"
+            >
+                Initialize Roadmap <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+            </button>
+        </PremiumCard>
       </div>
     )
   }
 
-  const { progress: p, assessment, skillProgress, history } = progress
+  const { progress: p, assessment: progressAssessment, skillProgress, history } = progress
 
   return (
     <div className="w-full pb-20 text-black">
@@ -168,7 +183,7 @@ export default function ProgressPage() {
           Progress Tracker
         </h1>
         <p className="text-[16px] font-black uppercase tracking-widest text-black/80 max-w-xl">
-          Track your journey to becoming a <span className="text-black bg-primary px-1 border-2 border-black">{assessment?.roleName || 'better developer'}</span>.
+          Track your journey to becoming a <span className="text-black bg-primary px-1 border-2 border-black">{progressAssessment?.roleName || 'better developer'}</span>.
         </p>
       </div>
 
@@ -185,9 +200,9 @@ export default function ProgressPage() {
                 </div>
                 <span className="text-sm font-black uppercase tracking-widest text-black">Overall Score</span>
               </div>
-              <p className="text-5xl font-black tracking-tighter text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2 w-fit mb-4">{assessment?.overallScore || 0}<span className="text-xl font-bold ml-1">%</span></p>
+              <p className="text-5xl font-black tracking-tighter text-black bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-2 w-fit mb-4">{progressAssessment?.overallScore || 0}<span className="text-xl font-bold ml-1">%</span></p>
             </div>
-            <p className="text-xs font-bold uppercase tracking-widest text-black/80 bg-accent px-2 border-2 border-black w-fit mt-auto">Readiness for {assessment?.roleName}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-black/80 bg-accent px-2 border-2 border-black w-fit mt-auto">Readiness for {progressAssessment?.roleName}</p>
           </PremiumCard>
         </motion.div>
 

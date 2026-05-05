@@ -209,6 +209,16 @@ router.post(
         projectSuggestions: roadmap.projectSuggestions,
         targetCompletionDate: roadmap.targetCompletionDate,
       },
+      profileSnapshot: {
+        skills: profile.parsedData.skills,
+        projects: profile.parsedData.projects,
+        experience: profile.parsedData.experience,
+        education: profile.parsedData.education,
+      },
+      resumeData: {
+        text: profile.resumeText,
+        url: profile.resumeUrl,
+      },
       explanations: scoringResult.explanations,
     });
 
@@ -341,6 +351,16 @@ router.post(
         milestones: roadmap.milestones,
         projectSuggestions: roadmap.projectSuggestions,
         targetCompletionDate: roadmap.targetCompletionDate,
+      },
+      profileSnapshot: {
+        skills: profile.parsedData.skills,
+        projects: profile.parsedData.projects,
+        experience: profile.parsedData.experience,
+        education: profile.parsedData.education,
+      },
+      resumeData: {
+        text: profile.resumeText,
+        url: profile.resumeUrl,
       },
       explanations: scoringResult.explanations,
     });
