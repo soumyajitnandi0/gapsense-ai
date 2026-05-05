@@ -4,10 +4,17 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import passport from 'passport';
+import fs from 'fs';
 import path from 'path';
 
 // Load environment variables
 dotenv.config();
+
+// Ensure upload directories exist
+const uploadDir = path.join(__dirname, '../uploads/resumes');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Config imports
 import connectDB from './config/database';
