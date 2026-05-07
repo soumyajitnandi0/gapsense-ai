@@ -114,13 +114,13 @@ export async function generateRoadmap(input: RoadmapInput): Promise<GeneratedRoa
       }
 
     } catch (error) {
-      console.error('AI Roadmap Generation Error, falling back to static:', error);
-      milestones = generateFallbackMilestones(enrichedGaps, durationDays, userExperience);
+      milestones = generateFallbackMilestones(enrichedGaps, durationDays, userExperience, targetRole);
     }
   } else {
     // Fallback if no API keys
-    milestones = generateFallbackMilestones(enrichedGaps, durationDays, userExperience);
+    milestones = generateFallbackMilestones(enrichedGaps, durationDays, userExperience, targetRole);
   }
+
 
   // If project suggestions are still empty (AI failed or was skipped), generate fallback ones
   if (projectSuggestions.length === 0) {
@@ -244,8 +244,10 @@ function parseLLMResponse(content: string): { milestones: IRoadmapMilestone[], p
 function generateFallbackMilestones(
   enrichedGaps: any[],
   durationDays: number,
-  userExperience: string
+  userExperience: string,
+  targetRole: string
 ): IRoadmapMilestone[] {
+
   const priorityGaps = enrichedGaps.filter(g => g.priority === 'high');
   const mediumGaps = enrichedGaps.filter(g => g.priority === 'medium');
   const lowGaps = enrichedGaps.filter(g => g.priority === 'low');
@@ -276,9 +278,10 @@ function generateFallbackMilestones(
 
     milestones.push({
       week: 1,
-      title: 'Core Fundamentals & Theory',
+      title: `${targetRole} Foundation & Theory`,
       tasks: foundationTasks,
     });
+
 
     if (weeks > 1) {
       const week2Tasks = priorityGaps.slice(0, 2).flatMap((gap, idx) => [
@@ -302,9 +305,10 @@ function generateFallbackMilestones(
 
       milestones.push({
         week: 2,
-        title: 'Advanced Applications',
+        title: `Advanced ${targetRole} Applications`,
         tasks: week2Tasks,
       });
+
     }
   }
 
@@ -404,7 +408,15 @@ async function generateProjectSuggestions(
   const topGaps = gaps.slice(0, 3).map(g => g.skill);
   const roleLower = targetRole.toLowerCase();
   
-  if (roleLower.includes('frontend') || roleLower.includes('fullstack') || roleLower.includes('developer') || roleLower.includes('engineer')) {
+  const isTechRole = roleLower.includes('frontend') || 
+                     roleLower.includes('fullstack') || 
+                     roleLower.includes('backend') || 
+                     roleLower.includes('developer') || 
+                     roleLower.includes('software') || 
+                     roleLower.includes('web');
+
+  if (isTechRole) {
+
     if (roleLower.includes('frontend') || roleLower.includes('fullstack')) {
       suggestions.push({
         title: `${targetRole} Portfolio Dashboard`,
@@ -431,20 +443,25 @@ async function generateProjectSuggestions(
         ), ...topGaps].slice(0, 6),
         difficulty: 'intermediate',
         estimatedDays: 10,
-        relevance: 'Shows architecture understanding and API design skills relevant to ${targetRole}.',
+        relevance: `Shows architecture understanding and API design skills relevant to ${targetRole}.`,
       });
     }
   }
 
+
+  // List of roles that typically don't require a portfolio of projects
+  const nonProjectRoles = ['manager', 'director', 'executive', 'hr', 'recruiter', 'sales', 'support', 'customer success'];
+  const isNonProjectRole = nonProjectRoles.some(r => roleLower.includes(r));
+
   // Generic but better fallback for non-tech roles
-  if (suggestions.length === 0) {
+  if (suggestions.length === 0 && !isNonProjectRole) {
     suggestions.push({
-      title: `${targetRole} Professional Project`,
-      description: `Create a comprehensive project that applies ${topGaps.slice(0, 3).join(', ')} to solve a core problem faced by a ${targetRole}.`,
+      title: `${targetRole} Capstone Project`,
+      description: `Create a comprehensive project that applies ${topGaps.slice(0, 3).join(', ')} to solve a core problem faced by a ${targetRole}. This should demonstrate your ability to deliver end-to-end value in this role.`,
       technologies: [...currentSkills.slice(0, 3), ...topGaps.slice(0, 3)],
       difficulty: 'intermediate',
       estimatedDays: 14,
-      relevance: 'Demonstrates how your new skills directly impact your performance as a ${targetRole}.',
+      relevance: `Demonstrates how your new skills directly impact your performance as a ${targetRole}.`,
     });
   }
 
@@ -455,21 +472,25 @@ async function generateProjectSuggestions(
       technologies: ['Python', 'Pandas', ...topGaps, 'Jupyter Notebook'],
       difficulty: 'advanced',
       estimatedDays: 12,
-      relevance: 'Demonstrates data handling and analysis capabilities specific to this role.',
+      relevance: `Demonstrates data handling and analysis capabilities specific to this role.`,
     });
   }
 
-  suggestions.push({
-    title: `Open Source or Community Contribution`,
-    description: `Find and contribute to a project or tool used in the ${targetRole} ecosystem using ${topGaps[0] || 'your target technologies'}.`,
-    technologies: [...currentSkills.slice(0, 2), ...topGaps.slice(0, 2)],
-    difficulty: 'intermediate',
-    estimatedDays: 7,
-    relevance: 'Shows collaboration skills and real-world contribution experience in the ${targetRole} field.',
-  });
+  // Only add community contribution if relevant or if it's a tech role
+  if (isTechRole || !isNonProjectRole) {
+    suggestions.push({
+      title: `${targetRole} Community Contribution`,
+      description: `Find and contribute to a project, tool, or industry discussion used in the ${targetRole} ecosystem using ${topGaps[0] || 'your target skills'}.`,
+      technologies: [...currentSkills.slice(0, 2), ...topGaps.slice(0, 2)],
+      difficulty: 'intermediate',
+      estimatedDays: 7,
+      relevance: `Shows collaboration skills and real-world contribution experience in the ${targetRole} field.`,
+    });
+  }
 
   return suggestions.slice(0, 3);
 }
+
 
 
 function generateDefaultRoadmap(targetRole: string, durationDays: number): GeneratedRoadmap {
