@@ -350,25 +350,35 @@ function generateFallbackMilestones(
   }
 
   // Final weeks: Integration and Projects
+  const integrationTopics = [
+    { title: 'System Architecture & Integration', task: 'Cross-Skill Integration', desc: 'Combine multiple newly learned skills into a single integrated architecture and analyze dependencies.' },
+    { title: 'Performance & Optimization', task: 'Code Quality & Profiling', desc: 'Refactor your project code for performance. Implement caching, optimize queries, and perform load testing.' },
+    { title: 'Security & Best Practices', task: 'Security Audit & Hardening', desc: 'Review your implementation for security vulnerabilities. Implement best practices for authentication and data protection.' },
+    { title: 'Testing & Documentation', task: 'Comprehensive Test Suite', desc: 'Write unit and integration tests. Document your architecture and API for the final portfolio.' },
+  ];
+
+  let topicIndex = 0;
   while (currentWeek <= weeks) {
     const isLastWeek = currentWeek === weeks;
+    const topic = integrationTopics[topicIndex % integrationTopics.length];
+    
     const tasks = [
       {
         id: `w${currentWeek}-t1`,
-        title: isLastWeek ? 'Capstone Project Launch' : 'Full-Stack Integration',
+        title: isLastWeek ? 'Capstone Project Launch' : topic.task,
         description: isLastWeek 
-          ? 'Finalize, polish, and deploy your capstone project showcasing your new skills.' 
-          : 'Combine multiple newly learned skills into a single integrated architecture.',
+          ? 'Finalize, polish, and deploy your capstone project showcasing your new skills for the target role.' 
+          : topic.desc,
         estimatedHours: isLastWeek ? 15 : 10,
         resources: [],
         completed: false,
       },
       {
         id: `w${currentWeek}-t2`,
-        title: isLastWeek ? 'Interview Prep & Resume Update' : 'Code Quality & Optimization',
-        description: isLastWeek 
-          ? 'Update your resume with your new projects and practice technical interview questions related to your gaps.' 
-          : 'Refactor your project code. Focus on performance, clean code, and test coverage.',
+        title: isLastWeek ? 'Portfolio Presentation' : 'Refinement & Review',
+        description: isLastWeek
+          ? 'Prepare your portfolio presentation and update your resume with your new technical expertise.'
+          : 'Refactor code based on the week\'s integration challenges. Focus on clean code principles.',
         estimatedHours: 5,
         resources: [],
         completed: false,
@@ -389,11 +399,14 @@ function generateFallbackMilestones(
 
     milestones.push({
       week: currentWeek,
-      title: isLastWeek ? 'Final Polish & Preparation' : `Integration Phase`,
+      title: isLastWeek ? 'Final Project & Certification' : topic.title,
       tasks,
     });
+    
     currentWeek++;
+    topicIndex++;
   }
+
 
   return milestones;
 }
