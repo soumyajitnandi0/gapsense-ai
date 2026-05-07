@@ -20,12 +20,12 @@ import { useStore, Role, Assessment } from "@/lib/store"
 const NAV_LINKS = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Roadmap", href: "/dashboard/roadmap" },
-    { name: "Mock Interview", href: "/dashboard/mock-interview" },
     { name: "Coach", href: "/dashboard/coach" },
     { name: "Analysis", href: "/dashboard/analysis" },
     { name: "Projects", href: "/dashboard/projects" },
     { name: "Progress", href: "/dashboard/progress" },
 ]
+
 
 export function Header() {
     const { logout, user } = useAuth()

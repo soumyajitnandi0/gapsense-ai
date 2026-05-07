@@ -15,6 +15,7 @@ import linkedinRoutes from './linkedin';
 import settingsRoutes from './settings';
 import onboardingRoutes from './onboarding';
 import progressRoutes from './progress';
+import voiceRoutes from './voice';
 
 const router = Router();
 
@@ -34,5 +35,6 @@ router.use('/linkedin', linkedinRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/onboarding', onboardingRoutes);
 router.use('/progress', progressRoutes);
+router.use('/voice', voiceRoutes);
 
 export default router;

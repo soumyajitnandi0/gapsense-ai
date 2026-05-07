@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Chat from '../models/Chat';
 import { authenticate, asyncHandler } from '../middleware';
-import { generateCoachResponse, generateMockInterviewQuestions, evaluateInterviewAnswer, generateResumeFeedback } from '../services';
+import { generateCoachResponse, generateResumeFeedback } from '../services';
 
 const router = Router();
 
@@ -133,32 +133,6 @@ router.post(
   })
 );
 
-// Generate mock interview questions
-router.post(
-  '/mock-interview/questions',
-  authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
-    const { roleId, difficulty = 'medium', count = 5 } = req.body;
-
-    const questions = await generateMockInterviewQuestions(roleId, difficulty, count);
-
-    res.json({ questions });
-  })
-);
-
-// Evaluate interview answer
-router.post(
-  '/mock-interview/evaluate',
-  authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
-    const { question, answer, type } = req.body;
-
-    const evaluation = await evaluateInterviewAnswer(question, answer, type);
-
-    res.json({ evaluation });
-  })
-);
-
 // Get resume feedback
 router.post(
   '/resume-feedback',
@@ -171,6 +145,7 @@ router.post(
     res.json({ feedback });
   })
 );
+
 
 // Clear chat history
 router.delete(
