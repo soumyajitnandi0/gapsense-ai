@@ -49,9 +49,10 @@ const SkillResourceSchema: Schema = new Schema({
   url: { type: String },
     type: { 
       type: String, 
-      enum: ['video', 'article', 'course', 'book', 'practice', 'documentation', 'guide'], 
+      default: 'article',
       required: true 
     },
+
 
   difficulty: { type: String, enum: ['beginner', 'intermediate', 'advanced'], required: true },
   estimatedHours: { type: Number },

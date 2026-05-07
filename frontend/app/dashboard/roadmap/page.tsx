@@ -275,9 +275,10 @@ export default function RoadmapPage() {
                                                                             }`}
                                                                         >
                                                                             {res.type === 'video' ? <PlayCircle className="h-4 w-4" /> : 
-                                                                              res.type === 'book' ? <BookOpen className="h-4 w-4" /> :
-                                                                              res.type === 'documentation' || res.type === 'article' ? <FileText className="h-4 w-4" /> :
-                                                                              <Globe className="h-4 w-4" />}
+                                                                             res.type === 'book' ? <BookOpen className="h-4 w-4" /> :
+                                                                             res.type === 'documentation' || res.type === 'article' || res.type === 'tutorial' ? <FileText className="h-4 w-4" /> :
+                                                                             res.type === 'projects' || res.type === 'practice' ? <Target className="h-4 w-4" /> :
+                                                                             <Globe className="h-4 w-4" />}
                                                                             {res.title}
                                                                         </a>
                                                                     ) : (
