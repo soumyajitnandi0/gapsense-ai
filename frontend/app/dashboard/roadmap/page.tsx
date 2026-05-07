@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { useStore, Role } from "@/lib/store"
 import api from "@/lib/api"
 import { useRouter } from "next/navigation"
-import { PlayCircle, Clock, CheckCircle2, Target, Map, RefreshCw, Loader2, Sparkles } from "lucide-react"
+import { PlayCircle, Clock, CheckCircle2, Target, Map, RefreshCw, Loader2, Sparkles, BookOpen, FileText, Globe } from "lucide-react"
+
 import { PremiumCard } from "@/components/ui/PremiumCard"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -273,7 +274,10 @@ export default function RoadmapPage() {
                                                                                     : 'bg-white text-black'
                                                                             }`}
                                                                         >
-                                                                            {res.type === 'video' ? <PlayCircle className="h-4 w-4" /> : <Map className="h-4 w-4" />}
+                                                                            {res.type === 'video' ? <PlayCircle className="h-4 w-4" /> : 
+                                                                              res.type === 'book' ? <BookOpen className="h-4 w-4" /> :
+                                                                              res.type === 'documentation' || res.type === 'article' ? <FileText className="h-4 w-4" /> :
+                                                                              <Globe className="h-4 w-4" />}
                                                                             {res.title}
                                                                         </a>
                                                                     ) : (

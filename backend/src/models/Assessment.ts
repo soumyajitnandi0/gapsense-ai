@@ -27,7 +27,8 @@ export interface IRoadmapMilestone {
     resources: {
       title: string;
       url?: string;
-      type: 'video' | 'article' | 'course' | 'practice';
+      type: 'video' | 'article' | 'course' | 'practice' | 'documentation' | 'book' | 'guide';
+
     }[];
     completed: boolean;
   }[];
@@ -102,7 +103,8 @@ const RoadmapTaskSchema: Schema = new Schema({
   resources: [{
     title: { type: String, required: true },
     url: { type: String },
-    type: { type: String, enum: ['video', 'article', 'course', 'practice'], required: true },
+    type: { type: String, enum: ['video', 'article', 'course', 'practice', 'documentation', 'book', 'guide'], required: true },
+
   }],
   completed: { type: Boolean, default: false },
 });

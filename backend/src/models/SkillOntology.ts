@@ -9,7 +9,8 @@ export interface IRelatedSkill {
 export interface ISkillResource {
   title: string;
   url?: string;
-  type: 'video' | 'article' | 'course' | 'book' | 'practice';
+  type: 'video' | 'article' | 'course' | 'book' | 'practice' | 'documentation' | 'guide';
+
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   estimatedHours?: number;
   rating?: number;
@@ -46,11 +47,12 @@ const RelatedSkillSchema: Schema = new Schema({
 const SkillResourceSchema: Schema = new Schema({
   title: { type: String, required: true },
   url: { type: String },
-  type: { 
-    type: String, 
-    enum: ['video', 'article', 'course', 'book', 'practice'], 
-    required: true 
-  },
+    type: { 
+      type: String, 
+      enum: ['video', 'article', 'course', 'book', 'practice', 'documentation', 'guide'], 
+      required: true 
+    },
+
   difficulty: { type: String, enum: ['beginner', 'intermediate', 'advanced'], required: true },
   estimatedHours: { type: Number },
   rating: { type: Number, min: 0, max: 5 },

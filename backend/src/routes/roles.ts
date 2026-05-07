@@ -62,17 +62,21 @@ router.post(
     const { jdText, name } = req.body;
 
     const roleData = await createRoleFromJD(jdText, name);
-
-    // Create role in database
-    const role = new Role({
-      ...roleData,
-      isActive: false, // Needs admin approval
-    });
-
-    await role.save();
-
+    
+    // Find or create role with this name
+    const role = await Role.findOneAndUpdate(
+      { name: roleData.name },
+      { 
+        $set: {
+          ...roleData,
+          isActive: false // Keep as pending admin approval
+        }
+      },
+      { upsert: true, new: true }
+    );
+    
     res.status(201).json({
-      message: 'Role created from JD (pending approval)',
+      message: 'Role created or updated from JD (pending approval)',
       role,
     });
   })
