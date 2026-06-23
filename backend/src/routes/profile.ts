@@ -69,7 +69,7 @@ router.post(
       return;
     }
 
-    const fileBuffer = fs.readFileSync(req.file.path);
+    const fileBuffer = req.file.buffer;
     
     try {
       // Parse resume
@@ -79,7 +79,7 @@ router.post(
       let profile = await Profile.findOne({ userId: (req.user as any)._id });
       
       if (profile) {
-        profile.resumeUrl = req.file.filename;
+        profile.resumeUrl = req.file.originalname;
         profile.resumeText = parsedResume.rawText;
 
         // Merge new skills with existing ones (keep unique by name, prefer higher level)
@@ -154,7 +154,7 @@ router.post(
       } else {
         profile = new Profile({
           userId: (req.user as any)._id,
-          resumeUrl: req.file.filename,
+          resumeUrl: req.file.originalname,
           resumeText: parsedResume.rawText,
           parsedData: {
             skills: parsedResume.skills.map(s => ({
@@ -186,8 +186,7 @@ router.post(
         await profile.save();
       }
 
-      // Clean up temp file
-      fs.unlinkSync(req.file.path);
+      // No temp file to clean up (memory storage)
 
       res.json({
         message: 'Resume uploaded and parsed successfully',
@@ -200,10 +199,7 @@ router.post(
         },
       });
     } catch (error) {
-      // Clean up temp file on error
-      if (fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
+      // No temp file to clean up (memory storage)
       throw error;
     }
   })

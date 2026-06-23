@@ -10,10 +10,12 @@ import path from 'path';
 // Load environment variables
 dotenv.config();
 
-// Ensure upload directories exist
-const uploadDir = path.join(__dirname, '../uploads/resumes');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure upload directories exist (only outside Vercel serverless)
+if (!process.env.VERCEL) {
+  const uploadDir = path.join(__dirname, '../uploads/resumes');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 }
 
 // Config imports
@@ -81,14 +83,15 @@ app.use('/api', routes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-});
+// Start server (skip in Vercel serverless environment)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  });
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err: Error) => {

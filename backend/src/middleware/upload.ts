@@ -2,15 +2,10 @@ import multer from 'multer';
 import path from 'path';
 import { Request } from 'express';
 
-const storage = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb: Function) => {
-    cb(null, 'uploads/resumes/');
-  },
-  filename: (req: Request, file: Express.Multer.File, cb: Function) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  },
-});
+
+// Use memoryStorage so files are held in req.file.buffer (Vercel has no writable disk)
+const storage = multer.memoryStorage();
+
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimes = [
