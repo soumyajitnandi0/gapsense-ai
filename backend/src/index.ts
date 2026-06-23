@@ -67,7 +67,7 @@ app.get('/health', (req, res) => {
 });
 
 // Seed endpoint (admin only)
-app.post('/api/seed', async (req, res) => {
+app.post('/seed', async (req, res) => {
   try {
     await runSeeds();
     res.json({ message: 'Database seeded successfully' });
@@ -76,8 +76,8 @@ app.post('/api/seed', async (req, res) => {
   }
 });
 
-// API routes
-app.use('/api', routes);
+// API routes (no /api prefix - Vercel's api/ directory handles the namespace)
+app.use('/', routes);
 
 // Error handling
 app.use(notFound);
